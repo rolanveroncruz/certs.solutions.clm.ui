@@ -1,0 +1,293 @@
+<div class="lp">
+
+  <!-- Top bar -->
+  <mat-toolbar class="lp__topbar" color="transparent">
+    <div class="lp__brand" aria-label="CLM home">
+      <mat-icon class="lp__logo" aria-hidden="true">verified_user</mat-icon>
+      <span class="lp__name">Certs Solutions</span>
+      <span class="lp__tag">Certificate Lifecycle Management</span>
+    </div>
+
+    <span class="spacer"></span>
+
+    <nav class="lp__actions" aria-label="Primary">
+      <a mat-button class="lp__link" href="#features">Features</a>
+      <a mat-button class="lp__link" href="#how">How it works</a>
+      <a mat-button class="lp__link" href="#security">Security</a>
+
+      <button mat-flat-button color="primary" type="button" [routerLink]="['/login']">
+        Login
+      </button>
+    </nav>
+  </mat-toolbar>
+
+  <main class="lp__main">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero__content">
+        <mat-chip-set class="hero__kicker" aria-label="Highlights">
+          <mat-chip disableRipple>Prevent outages</mat-chip>
+          <mat-chip disableRipple>Prove compliance</mat-chip>
+          <mat-chip disableRipple>Automate renewals</mat-chip>
+        </mat-chip-set>
+
+        <h1 class="hero__title">
+          Keep every certificate valid, discoverable, and auditable.
+        </h1>
+
+        <p class="hero__subtitle">
+          Track issuance, ownership, rotation, expiration, and policy enforcement across your org—
+          with clear inventory, alerts, and automation-ready workflows.
+        </p>
+
+        <div class="hero__cta">
+          <button mat-flat-button color="primary" type="button" [routerLink]="['/login']">
+            Login
+          </button>
+          <a mat-stroked-button color="primary" class="hero__ghost" href="#features">
+            Explore features
+          </a>
+        </div>
+
+        <mat-chip-set class="hero__meta" aria-label="Capabilities">
+          <mat-chip disableRipple>Expiry alerts</mat-chip>
+          <mat-chip disableRipple>Inventory &amp; ownership</mat-chip>
+          <mat-chip disableRipple>Renewal workflows</mat-chip>
+          <mat-chip disableRipple>Audit trails</mat-chip>
+        </mat-chip-set>
+      </div>
+
+      <!-- Mock panel -->
+      <div class="hero__panel" aria-hidden="true">
+        <mat-card class="mock" appearance="outlined">
+          <mat-card-content>
+
+            <div class="mock__row">
+              <mat-chip class="mock__chip ok" disableRipple>Valid</mat-chip>
+              <div class="mock__text">
+                <div class="mock__h">api.prod.example.com</div>
+                <div class="mock__s">Expires in 92 days • Auto-renew enabled</div>
+              </div>
+            </div>
+
+            <div class="mock__row">
+              <mat-chip class="mock__chip warn" disableRipple>Expiring</mat-chip>
+              <div class="mock__text">
+                <div class="mock__h">payments.internal</div>
+                <div class="mock__s">Expires in 14 days • Owner: Platform Team</div>
+              </div>
+            </div>
+
+            <div class="mock__row">
+              <mat-chip class="mock__chip crit" disableRipple>Critical</mat-chip>
+              <div class="mock__text">
+                <div class="mock__h">legacy-gateway</div>
+                <div class="mock__s">Expired 2 days ago • Action required</div>
+              </div>
+            </div>
+
+            <mat-divider class="mock__divider"></mat-divider>
+
+            <div class="mock__footer">
+              <div class="mock__stat">
+                <div class="mock__n">1,284</div>
+                <div class="mock__l">Certificates tracked</div>
+              </div>
+              <div class="mock__stat">
+                <div class="mock__n">37</div>
+                <div class="mock__l">Expiring in 30 days</div>
+              </div>
+            </div>
+
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="section">
+      <div class="section__head">
+        <h2 class="section__title">Built for operational clarity</h2>
+        <p class="section__desc">
+          One place to manage certificate inventory, policies, renewals, and evidence for audits.
+        </p>
+      </div>
+
+      <div class="grid">
+        <mat-card class="card" appearance="outlined">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>inventory_2</mat-icon>
+            <mat-card-title>Inventory</mat-card-title>
+            <mat-card-subtitle>Discover and catalog</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            Discover and catalog certs by environment, service, owner, and usage.
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="card" appearance="outlined">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>schedule</mat-icon>
+            <mat-card-title>Alerts</mat-card-title>
+            <mat-card-subtitle>Never miss expiry</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            Proactive expiry reminders with escalation paths and dashboards.
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="card" appearance="outlined">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>smart_toy</mat-icon>
+            <mat-card-title>Automation</mat-card-title>
+            <mat-card-subtitle>Workflow-ready</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            Renewal workflows, approvals, and integrations with agents/APIs.
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="card" appearance="outlined">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>receipt_long</mat-icon>
+            <mat-card-title>Audit trails</mat-card-title>
+            <mat-card-subtitle>Evidence on demand</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            Evidence of issuance, rotation, access, and policy compliance.
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="card" appearance="outlined">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>policy</mat-icon>
+            <mat-card-title>Policy enforcement</mat-card-title>
+            <mat-card-subtitle>Govern at scale</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            Minimum key sizes, approved CAs, rotation intervals, and exceptions.
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="card" appearance="outlined">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>groups</mat-icon>
+            <mat-card-title>Ownership</mat-card-title>
+            <mat-card-subtitle>Clear accountability</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            Clear accountability with teams, contacts, and on-call mapping.
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" class="section section--alt">
+      <div class="section__head">
+        <h2 class="section__title">How it works</h2>
+        <p class="section__desc">A simple loop: discover → govern → renew → prove.</p>
+      </div>
+
+      <div class="steps">
+        <mat-card class="step" appearance="outlined">
+          <mat-card-header>
+            <div class="step__n" mat-card-avatar>1</div>
+            <mat-card-title>Ingest</mat-card-title>
+            <mat-card-subtitle>Agents, APIs, files</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            Import certs into a single inventory and normalize metadata.
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="step" appearance="outlined">
+          <mat-card-header>
+            <div class="step__n" mat-card-avatar>2</div>
+            <mat-card-title>Classify</mat-card-title>
+            <mat-card-subtitle>Ownership & policy</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            Tag owners, environments, criticality, and enforce policy baselines.
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="step" appearance="outlined">
+          <mat-card-header>
+            <div class="step__n" mat-card-avatar>3</div>
+            <mat-card-title>Automate</mat-card-title>
+            <mat-card-subtitle>Approvals & notifications</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            Run renewal workflows with escalation rules and repeatable playbooks.
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="step" appearance="outlined">
+          <mat-card-header>
+            <div class="step__n" mat-card-avatar>4</div>
+            <mat-card-title>Audit</mat-card-title>
+            <mat-card-subtitle>Reports & evidence</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            Generate reports and immutable evidence for compliance and incident review.
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+
+    <!-- Security -->
+    <section id="security" class="section">
+      <div class="security">
+        <div class="security__text">
+          <h2 class="section__title">Security-first by default</h2>
+          <p class="section__desc">
+            Built to support least-privilege access, operational safety, and compliance needs.
+          </p>
+
+          <mat-list class="bullets">
+            <mat-list-item>
+              <mat-icon matListItemIcon>security</mat-icon>
+              <div matListItemTitle>Role-based access control (RBAC)</div>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>history</mat-icon>
+              <div matListItemTitle>Immutable audit logs</div>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>vpn_key</mat-icon>
+              <div matListItemTitle>Secrets stay in your vault; CLM stores metadata</div>
+            </mat-list-item>
+          </mat-list>
+        </div>
+
+        <div class="security__cta">
+          <mat-card class="security__box" appearance="outlined">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>login</mat-icon>
+              <mat-card-title>Ready to sign in?</mat-card-title>
+              <mat-card-subtitle>Access your inventory and alerts</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-actions align="end">
+              <button mat-flat-button color="primary" type="button" [routerLink]="['/login']">
+                Login
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="lp__footer">
+    <div class="lp__footerInner">
+      <span>© {{ currentYear }} CLM</span>
+      <span class="dot">•</span>
+      <a mat-button class="lp__link" href="#">Privacy</a>
+      <span class="dot">•</span>
+      <a mat-button class="lp__link" href="#">Terms</a>
+    </div>
+  </footer>
+</div>
