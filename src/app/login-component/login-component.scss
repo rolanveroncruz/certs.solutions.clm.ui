@@ -1,0 +1,143 @@
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+
+  background:
+    radial-gradient(1200px 700px at 15% 10%, rgba(63, 81, 181, 0.14), transparent 60%),
+    radial-gradient(1000px 600px at 85% 30%, rgba(0, 150, 136, 0.12), transparent 60%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.00));
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.login-header {
+  padding: 20px 20px 0 20px;
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: rgba(63, 81, 181, 0.12);
+
+    mat-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      opacity: 0.75;
+      line-height: 1.2;
+    }
+  }
+}
+
+.login-form {
+  margin-top: 8px;
+  display: grid;
+  gap: 14px;
+
+  .full {
+    width: 100%;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: -2px;
+
+    @media (max-width: 380px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .divider {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    margin: 6px 0;
+
+    &::before,
+    &::after {
+      content: "";
+      height: 1px;
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    span {
+      font-size: 12px;
+      opacity: 0.7;
+      padding: 0 4px;
+    }
+  }
+
+  .provider-icon {
+    margin-right: 8px;
+  }
+}
+
+.login-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px 16px;
+
+  .muted {
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  .dot {
+    opacity: 0.4;
+  }
+
+  .link {
+    font-size: 12px;
+    text-decoration: none;
+    opacity: 0.8;
+
+    &:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+  }
+}
+
+.link {
+  color: inherit;
+}
