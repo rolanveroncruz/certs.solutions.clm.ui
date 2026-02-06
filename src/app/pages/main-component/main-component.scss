@@ -1,0 +1,135 @@
+.main-shell {
+  height: 100dvh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ✅ Force royal blue for BOTH toolbars in this component */
+.app-bar{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #4169e1 !important; /* RoyalBlue */
+  color: #fff !important;
+
+}
+.nav-bar {
+  position: sticky;
+  top: 64px;
+  z-index: 9;
+
+  background: #4169e1 !important; /* RoyalBlue */
+  color: #fff !important;
+  /* make icons readable */
+  mat-icon {
+    color: #fff !important;
+  }
+}
+
+.app-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  .left {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .brand {
+    font-weight: 700;
+    letter-spacing: 0.4px;
+  }
+
+  .divider {
+    width: 1px;
+    height: 22px;
+    opacity: 0.35;
+    background: currentColor;
+    margin: 0 2px;
+  }
+
+  .page-title {
+    font-weight: 500;
+    opacity: 0.95;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.nav-bar {
+  position: sticky;
+  top: 64px;
+  z-index: 9;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.nav {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.nav-link {
+  border-radius: 999px;
+  text-transform: none;
+
+  &.is-active {
+    background: rgba(255, 255, 255, 0.18);
+  }
+
+  mat-icon {
+    margin-right: 8px;
+  }
+}
+
+.content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 16px;
+}
+
+@media (max-width: 600px) {
+  .nav-bar {
+    top: 56px;
+  }
+
+  .content {
+    padding: 12px;
+  }
+}
+.nav-link {
+  border-radius: 999px;
+  text-transform: none;
+  transition: background-color 120ms ease, transform 120ms ease;
+
+  // ✅ mouseover highlight (candidate selection)
+  &:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  // optional: tiny "lift" on hover
+  &:active {
+    transform: translateY(0.5px);
+  }
+
+  // ✅ selected (routerLinkActive)
+  &.is-active {
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  mat-icon {
+    margin-right: 8px;
+  }
+}
