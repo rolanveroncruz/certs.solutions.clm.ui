@@ -29,7 +29,7 @@ export interface LoginClient {
 }
 
 export interface LoginResponse {
-    token: string;
+    access_token: string;
     token_type: string;
     expires_in: number;
     user: LoginUser;
@@ -87,6 +87,7 @@ export class LoginService {
                 if (isValid) {
                     /* Successful Login()
                      */
+                    console.log("In Service, Login Success. Storing token and user info");
                     const user: LoggedInUser = {
                         user_id: response.user.id,
                         name: response.user.first_name + ' ' + response.user.last_name,
@@ -94,7 +95,8 @@ export class LoginService {
                         client_id: response.client.id,
                         client_name: response.client.name
                     }
-                    this.loginSuccess(response.token, user);
+                    console.log(" Calling loginSuccess with token and user info: ", response, response.access_token, "  ", user, " ")
+                    this.loginSuccess(response.access_token, user);
 
                 } else {
                     this.clearSessionState();
@@ -109,6 +111,7 @@ export class LoginService {
     }
 
     loginSuccess(token: string, user: LoggedInUser) {
+        console.log("In Service, Login Success. Storing token and user info", token, user);
         this.currentUser.set(user);
         this.token.set(token);
         this.persistToStorage();

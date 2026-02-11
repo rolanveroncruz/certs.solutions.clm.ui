@@ -1,7 +1,7 @@
 import {Component, inject, signal} from '@angular/core';
 import {MatCard, MatCardActions, MatCardContent, MatCardHeader} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
-import {MatFormField, MatInput, MatLabel} from '@angular/material/input';
+import {MatFormField, MatInput, MatLabel, MatSuffix} from '@angular/material/input';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatButton, MatIconButton} from '@angular/material/button';
 
@@ -22,6 +22,7 @@ import {firstValueFrom} from 'rxjs';
         MatCardContent,
         MatFormField,
         MatLabel,
+        MatSuffix,
         MatCheckbox,
         MatButton,
         MatCardActions,
@@ -68,6 +69,14 @@ export class LoginComponent {
             const response = await firstValueFrom(
                 this.loginService.login(email ?? '', password ?? '')
             );
+            console.log("Login response: ", response);
+            if (this.loginService.isLoggedIn()) {
+                console.log("Login successful. Navigating to dashboard.");
+                await this.router.navigateByUrl('/main/dashboard').then();
+            } else{
+                console.log("Login failed.");
+                this.errorText = 'Login failed.';
+            }
         } catch (err:any){
             this.errorText = err?.message ?? 'Login failed.';
         } finally {
