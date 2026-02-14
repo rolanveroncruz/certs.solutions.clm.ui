@@ -1,1 +1,123 @@
-<p>discoveries-component works!</p>
+<div class="discovery-container">
+
+    <div class="probe-header mat-elevation-z2">
+        <h2><mat-icon>security</mat-icon> Certificate Explorer</h2>
+
+        <div class="search-box">
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Probe Target URL (e.g., google.com)</mat-label>
+                <input matInput [(ngModel)]="targetUrl" (keyup.enter)="probeTarget()" [disabled]="isLoading()" placeholder="Enter domain...">
+
+                <button mat-icon-button matSuffix (click)="probeTarget()" [disabled]="!targetUrl() || isLoading()" color="primary">
+                    <mat-icon>radar</mat-icon>
+                </button>
+            </mat-form-field>
+
+            @if (isLoading()) {
+                <mat-progress-bar mode="indeterminate" class="loader"></mat-progress-bar>
+            }
+        </div>
+    </div>
+
+    <div class="content-layout">
+
+        <div class="jobs-column">
+            <div class="section-title">
+                <h3>Recent Probes</h3>
+                <button mat-icon-button (click)="loadJobs()" matTooltip="Refresh list"><mat-icon>refresh</mat-icon></button>
+            </div>
+
+            <div class="cards-grid">
+                @for (job of jobs(); track job.job_id) {
+                    <mat-card
+                        class="job-card"
+                        [class.selected]="selectedJob()?.job_id === job.job_id"
+                        (click)="selectJob(job)">
+
+                        <div class="card-status-strip" [class]="job.status"></div>
+
+                        <mat-card-header>
+                            <mat-card-title>{{ job.target_url }}</mat-card-title>
+                            <mat-card-subtitle>{{ job.created_at | date:'MMM d, h:mm a' }}</mat-card-subtitle>
+                        </mat-card-header>
+
+                        <mat-card-actions align="end">
+                            <mat-chip-set>
+                                <mat-chip [color]="getStatusColor(job.status)" highlighted>{{ job.status }}</mat-chip>
+                                @if(job.chain.length > 0) {
+                                    <mat-chip>{{ job.chain.length }} Certs</mat-chip>
+                                }
+                            </mat-chip-set>
+                        </mat-card-actions>
+                    </mat-card>
+                } @empty {
+                    <div class="empty-state">
+                        <mat-icon>history_toggle_off</mat-icon>
+                        <p>No probes launched yet.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="details-column">
+            @if (selectedJob(); as job) {
+                <mat-card class="detail-panel">
+                    <mat-card-header>
+                        <div mat-card-avatar>
+                            <mat-icon class="large-icon">verified_user</mat-icon>
+                        </div>
+                        <mat-card-title>Chain of Trust</mat-card-title>
+                        <mat-card-subtitle>Target: {{ job.target_url }}</mat-card-subtitle>
+                    </mat-card-header>
+
+                    <mat-card-content class="chain-content">
+
+                        @if (job.status === 'failed') {
+                            <div class="error-banner">
+                                <mat-icon>error</mat-icon> Probe Failed. No certificates retrieved.
+                            </div>
+                        }
+
+                        @if (job.chain.length > 0) {
+                            <div class="timeline">
+                                @for (cert of selectedJobChain(); track cert.fingerprint; let index = $index) {
+                                    <div class="timeline-item">
+
+                                        @if (index < job.chain.length - 1) {
+                                            <div class="line"></div>
+                                        }
+
+                                        <div class="timeline-marker" [class.root]="cert.depth > 1" [class.leaf]="cert.depth === 0">
+                                            {{ cert.depth === 0 ? 'LEAF' : (index === job.chain.length - 1 ? 'ROOT' : 'INT') }}
+                                        </div>
+
+                                        <div class="timeline-content mat-elevation-z1">
+                                            <h4>{{ cert.common_name }}</h4>
+                                            <div class="cert-meta">
+                                                <span class="label">Fingerprint:</span>
+                                                <span class="mono">{{ cert.fingerprint | slice:0:16 }}...</span>
+                                            </div>
+                                            <div class="cert-meta">
+                                                <span class="label">Expires:</span>
+                                                <span [class.expired]="false"> {{ cert.expires_at | date:'mediumDate' }}
+                        </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        } @else if (job.status === 'completed') {
+                            <p>No certificate chain information available.</p>
+                        }
+
+                    </mat-card-content>
+                </mat-card>
+            } @else {
+                <div class="placeholder-panel">
+                    <mat-icon>touch_app</mat-icon>
+                    <h3>Select a job to view details</h3>
+                </div>
+            }
+        </div>
+    </div>
+</div>

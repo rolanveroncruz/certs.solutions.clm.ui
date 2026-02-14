@@ -1,0 +1,190 @@
+.discovery-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f5f5;
+}
+
+// --- Header ---
+.probe-header {
+    background: white;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+
+    h2 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #3f51b5;
+    }
+
+    .search-box {
+        width: 50%;
+        position: relative;
+
+        .loader {
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+        }
+    }
+}
+
+// --- Layout ---
+.content-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden; // Prevent full page scroll
+    padding: 20px;
+    gap: 20px;
+}
+
+// --- Left Column: Job List ---
+.jobs-column {
+    flex: 0 0 400px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+
+    .section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .cards-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+.job-card {
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-left: 4px solid transparent; // Reserve space for status strip
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    &.selected {
+        background-color: #e8f0fe;
+        border-color: #3f51b5;
+    }
+
+    // Status Strip colors
+    .card-status-strip {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+
+        &.completed { background-color: #4caf50; }
+        &.failed { background-color: #f44336; }
+        &.pending { background-color: #ff9800; }
+    }
+}
+
+// --- Right Column: Details ---
+.details-column {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-panel {
+    min-height: 400px;
+}
+
+.placeholder-panel, .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #9e9e9e;
+
+    mat-icon {
+        font-size: 48px;
+        height: 48px;
+        width: 48px;
+        margin-bottom: 1rem;
+    }
+}
+
+// --- Timeline Visualization ---
+.chain-content {
+    padding-top: 20px;
+}
+
+.timeline {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.timeline-item {
+    display: flex;
+    gap: 20px;
+    position: relative;
+    padding-bottom: 30px; // Space for connector line
+
+    .line {
+        position: absolute;
+        left: 24px; // Center of marker
+        top: 30px;
+        bottom: -10px;
+        width: 2px;
+        background-color: #bdbdbd;
+        z-index: 0;
+    }
+
+    .timeline-marker {
+        z-index: 1;
+        width: 50px;
+        height: 30px;
+        border-radius: 15px;
+        background: #e0e0e0;
+        color: #616161;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: bold;
+        flex-shrink: 0;
+
+        &.leaf { background: #4caf50; color: white; }
+        &.root { background: #3f51b5; color: white; }
+    }
+
+    .timeline-content {
+        flex: 1;
+        background: white;
+        border: 1px solid #eee;
+        padding: 15px;
+        border-radius: 8px;
+
+        h4 { margin: 0 0 10px 0; color: #333; }
+
+        .cert-meta {
+            display: flex;
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: #666;
+
+            .label { width: 80px; font-weight: 500; }
+            .mono { font-family: monospace; background: #f5f5f5; padding: 2px 4px; border-radius: 4px; }
+        }
+    }
+}

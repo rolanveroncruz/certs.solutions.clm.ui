@@ -76,6 +76,13 @@ export class LoginService {
 
     }
 
+
+    /*
+    login takes an email and a password, and attempts logging in at the server.
+    On success, it calls this.loginSuccess() which stores the user and the access_token into localStorage.
+    Services can then read token() to get the current access token, and currentUser() to get the current user.
+    If login fails, it clears the session state (token and currentUser) and returns an error.
+     */
     login(email: string, password: string): Observable<LoginResponse> {
         this.clearSessionState();
 
