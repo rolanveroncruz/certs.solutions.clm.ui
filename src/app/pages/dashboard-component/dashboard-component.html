@@ -1,0 +1,138 @@
+<div class="dash">
+
+  <!-- Header -->
+  <mat-card class="hero" appearance="outlined">
+    <div class="hero-row">
+      <div class="hero-left">
+        <div class="hero-title">
+          <mat-icon aria-hidden="true">space_dashboard</mat-icon>
+          <span>Client Dashboard</span>
+        </div>
+
+        <div class="hero-sub">
+          Monitor certificate health, upcoming expirations, and agent activity.
+        </div>
+
+        <div class="hero-actions">
+          <button mat-flat-button type="button" (click)="onRequestCertificate()">
+            <mat-icon aria-hidden="true">add</mat-icon>
+            Request Certificate
+          </button>
+
+          <button mat-button type="button" (click)="onRunDiscovery()">
+            <mat-icon aria-hidden="true">travel_explore</mat-icon>
+            Run Discovery
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="kpi">
+          <div class="kpi-label">Compliance</div>
+          <div class="kpi-value">
+            {{ compliancePct() }}%
+            <span class="kpi-badge">{{ complianceLabel() }}</span>
+          </div>
+          <mat-progress-bar mode="determinate" [value]="compliancePct()"></mat-progress-bar>
+          <div class="kpi-hint">Based on policy adherence & renewal SLAs.</div>
+        </div>
+      </div>
+    </div>
+  </mat-card>
+
+  <!-- Stat cards -->
+  <section class="stats">
+    @for (s of stats(); track s.label) {
+      <mat-card class="stat" appearance="outlined">
+        <div class="stat-top">
+          <mat-icon aria-hidden="true">{{ s.icon }}</mat-icon>
+          <div class="stat-value">{{ s.value }}</div>
+        </div>
+        <div class="stat-label">{{ s.label }}</div>
+        @if (s.hint) {
+          <div class="stat-hint">{{ s.hint }}</div>
+        }
+      </mat-card>
+    }
+  </section>
+
+  <!-- Main grid -->
+  <section class="grid">
+
+    <!-- Expiring soon -->
+    <mat-card class="panel" appearance="outlined">
+      <div class="panel-head">
+        <div class="panel-title">
+          <mat-icon aria-hidden="true">schedule</mat-icon>
+          <span>Expiring Soon</span>
+        </div>
+
+        <button mat-button type="button" (click)="onViewAllExpiring()">
+          View all
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="expiring-list">
+        @for (c of expiring(); track c.commonName) {
+          <button class="expiring-row" type="button" (click)="onOpenCert(c)">
+            <div class="row-main">
+              <div class="cn">{{ c.commonName }}</div>
+              <div class="meta">
+                <mat-chip-set aria-label="certificate meta">
+                  <mat-chip>{{ c.environment }}</mat-chip>
+                  <mat-chip>{{ c.issuer }}</mat-chip>
+                </mat-chip-set>
+              </div>
+            </div>
+
+            <div class="row-right">
+              <div class="days">
+                <span class="num">{{ c.daysLeft }}</span>
+                <span class="txt">days</span>
+              </div>
+              <mat-icon aria-hidden="true">chevron_right</mat-icon>
+            </div>
+          </button>
+        }
+      </div>
+    </mat-card>
+
+    <!-- Recent activity -->
+    <mat-card class="panel" appearance="outlined">
+      <div class="panel-head">
+        <div class="panel-title">
+          <mat-icon aria-hidden="true">history</mat-icon>
+          <span>Recent Activity</span>
+        </div>
+
+        <button mat-button type="button">
+          Refresh
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+        </button>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="activity">
+        @for (a of activity(); track a.when + a.title) {
+          <div class="activity-row">
+            <div class="a-icon">
+              <mat-icon aria-hidden="true">{{ a.icon }}</mat-icon>
+            </div>
+
+            <div class="a-body">
+              <div class="a-title">{{ a.title }}</div>
+              <div class="a-detail">{{ a.detail }}</div>
+            </div>
+
+            <div class="a-when">{{ a.when }}</div>
+          </div>
+        }
+      </div>
+    </mat-card>
+
+  </section>
+</div>
