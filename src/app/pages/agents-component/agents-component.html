@@ -1,1 +1,58 @@
-<p>agents-component works!</p>
+<div class="agents-container">
+    <h2>Network Agents</h2>
+
+    @if (loading()) {
+        <div class="loader">Scanning network...</div>
+    } @else {
+        <div class="agent-list">
+            @for (agent of agents(); track agent.id) {
+                <div class="agent-card" [class.expanded]="expandedAgentId === agent.id">
+
+                    <div class="agent-header" (click)="toggleAgent(agent.id)">
+                        <div class="status-indicator" [class.online]="agent.status === 'online'"></div>
+                        <div class="info">
+                            <span class="hostname">{{ agent.hostname }}</span>
+                            <span class="ip-address">{{ agent.ipAddress }} — {{ agent.os }}</span>
+                        </div>
+                        <div class="chevron">
+                            {{ expandedAgentId === agent.id ? '▲' : '▼' }}
+                        </div>
+                    </div>
+
+                    @if (expandedAgentId === agent.id) {
+                        <div class="agent-details">
+
+                            <div class="system-meta">
+                                <span><strong>CPU:</strong> {{ agent.cpuModel }} ({{ agent.cpuCores }} cores)</span>
+                                <span><strong>Memory:</strong> {{ (agent.totalMemoryBytes || 0) / 1024 / 1024 / 1024 | number:'1.1-1' }} GB</span>
+                            </div>
+
+                            <section class="detail-section">
+                                <h4>Discovered Services</h4>
+                                @for (discovery of agent.discoveries; track discovery.id) {
+                                    <div class="item-row">
+                                        <div class="service-info">
+                                            <strong>{{ discovery.serviceName }}</strong>
+                                            <span class="port-list">Ports: {{ discovery.ports.join(', ') }}</span>
+                                            @if (discovery.certificateFound) {
+                                                <span class="cert-tag">Cert: {{ discovery.commonName }}</span>
+                                            }
+                                        </div>
+                                        <button class="btn-request" (click)="requestCertificate(discovery)">
+                                            Request New Cert
+                                        </button>
+                                    </div>
+                                } @empty {
+                                    <p class="muted">No services discovered on this agent.</p>
+                                }
+                            </section>
+
+                        </div>
+                    }
+                </div>
+            } @empty {
+                <div class="empty-state">No agents reported.</div>
+            }
+        </div>
+    }
+</div>
