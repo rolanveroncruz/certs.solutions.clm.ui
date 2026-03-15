@@ -38,7 +38,7 @@
                                                 <span class="cert-tag">Cert: {{ discovery.commonName }}</span>
                                             }
                                         </div>
-                                        <button class="btn-request" (click)="requestCertificate(discovery)">
+                                        <button class="btn-request" (click)="requestCertificate(agent.id,discovery)">
                                             Request New Cert
                                         </button>
                                     </div>
@@ -56,3 +56,11 @@
         </div>
     }
 </div>
+@if (activeRequest){
+    <app-cert-request-modal
+        [agentId]="activeRequest.agentId"
+        [discovery]="activeRequest.discovery"
+        (confirmed) = "handleModalConfirm($event)"
+        (cancelled)="activeRequest= null" >
+    </app-cert-request-modal>
+}

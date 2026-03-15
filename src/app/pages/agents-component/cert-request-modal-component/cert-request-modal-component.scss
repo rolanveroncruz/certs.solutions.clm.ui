@@ -1,0 +1,94 @@
+.modal-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.75); // Dark slate backdrop
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal-content {
+    background: #ffffff;
+    width: 550px;
+    max-width: 95%;
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+    .modal-header {
+        margin-bottom: 1.5rem;
+        h3 { margin: 0; color: #1e293b; font-size: 1.25rem; }
+        .subtitle { margin: 0.25rem 0 0; font-size: 0.875rem; color: #64748b; }
+        code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; color: #2563eb; }
+    }
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+
+    label {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.4rem;
+    }
+
+    input {
+        padding: 0.625rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 0.9375rem;
+        transition: border-color 0.2s;
+
+        &:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+    }
+
+    .error { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; }
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.modal-footer {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+
+    button {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        &:hover { background: #f1f5f9; }
+    }
+
+    .btn-submit {
+        background: #2563eb;
+        border: 1px solid #2563eb;
+        color: white;
+        &:disabled { background: #94a3b8; border-color: #94a3b8; cursor: not-allowed; }
+        &:hover:not(:disabled) { background: #1d4ed8; }
+    }
+}
