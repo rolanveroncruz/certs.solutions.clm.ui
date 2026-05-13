@@ -46,12 +46,16 @@
         </mat-form-field>
 
         <div class="row">
-          <mat-checkbox>Remember me</mat-checkbox>
-
           <a class="link" href="#" (click)="$event.preventDefault()">
             Forgot password?
           </a>
         </div>
+
+          @if (errorText()){
+              <div class="login-error">
+                  {{ errorText() }}
+              </div>
+          }
 
         <button mat-flat-button color="primary" class="full" type="button" (click)="onSubmit($event)">
           Log in/Submit

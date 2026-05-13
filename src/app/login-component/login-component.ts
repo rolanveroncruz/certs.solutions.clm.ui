@@ -40,7 +40,7 @@ export class LoginComponent {
 
     hidePassword = signal(true);
     isSubmitting = signal(false);
-    errorText: string | null = null;
+    errorText= signal<string | null>(null);
 
     readonly form = this.fb.group({
         email: ['', [Validators.required, Validators.email]],
@@ -52,6 +52,7 @@ export class LoginComponent {
         this.hidePassword.set(!this.hidePassword());
     }
     async onSubmit(event?:Event): Promise<void> {
+        this.errorText.set(null);
         console.log("In Login Component, onSubmit");
         event?.preventDefault();
 
@@ -75,10 +76,17 @@ export class LoginComponent {
                 await this.router.navigateByUrl('/main/dashboard').then();
             } else{
                 console.log("Login failed.");
-                this.errorText = 'Login failed.';
             }
         } catch (err:any){
-            this.errorText = err?.message ?? 'Login failed.';
+            console.log("Login failed:", err);
+            if (err?.status === 401)
+            {
+                this.errorText.set('Login failed. Invalid email or password');
+                console.log("Login failed", this.errorText());
+            } else{
+                this.errorText.set('An unexpected error occurred. Please try again later.');
+                console.log("Login failed", this.errorText());
+            }
         } finally {
             this.isSubmitting.set(false);
         }
