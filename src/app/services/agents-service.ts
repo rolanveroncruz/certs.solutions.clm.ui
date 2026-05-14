@@ -1,9 +1,9 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {AgentInfoRes} from './agents.model';
 import { environment } from '../../environments/environment';
 import {LoginService} from './login-service';
+import { AgentResponse } from './agents.model';
 
 export interface GenerateEnrollmentTokenRequest{
     client_id: number;
@@ -24,7 +24,9 @@ export class AgentsService {
     private readonly apiUrl = `${environment.apiBaseUrl}/agents`;
     private readonly loginService =inject(LoginService);
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) {
+
+    }
 
     private authHeaders(): HttpHeaders {
         const token = this.loginService.token?.() ?? '';
@@ -35,8 +37,15 @@ export class AgentsService {
      * Fetches the list of all agents, including hardware info
      * and discovered services (mapped from HandleListAgents).
      */
-    listAgents(): Observable<AgentInfoRes[]> {
-        return this.http.get<AgentInfoRes[]>(this.apiUrl, {headers: this.authHeaders()});
+    listAgents(client_id:number): Observable<AgentResponse[]> {
+        return this.http.get<AgentResponse[]>
+        (
+            `${this.apiUrl}`,
+            {
+                params: {client_id: client_id},
+                headers: this.authHeaders(),
+            },
+        );
     }
 
     /**
