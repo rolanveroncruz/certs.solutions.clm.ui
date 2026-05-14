@@ -11,11 +11,30 @@
     </div>
 
     <span class="spacer"></span>
+      <button
+          mat-icon-button
+          type="button"
+          class="avatar-button"
+          [matMenuTriggerFor]="userMenu"
+          aria-label="Open user menu"
+      >
+          <mat-icon aria-hidden="true">account_circle</mat-icon>
+      </button>
 
-    <button mat-button type="button" (click)="onLogout()">
-      <mat-icon aria-hidden="true">logout</mat-icon>
-      Logout
-    </button>
+      <mat-menu #userMenu="matMenu">
+          <button mat-menu-item type="button" (click)="onGenerateToken()">
+              <mat-icon aria-hidden="true">vpn_key</mat-icon>
+              <span>Generate token</span>
+          </button>
+
+          <mat-divider></mat-divider>
+
+          <button mat-menu-item type="button" (click)="onLogout()">
+              <mat-icon aria-hidden="true">logout</mat-icon>
+              <span>Logout</span>
+          </button>
+      </mat-menu>
+
   </mat-toolbar>
 
   <!-- Secondary nav row -->

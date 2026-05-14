@@ -1,0 +1,76 @@
+<h2 mat-dialog-title>Generate Enrollment Token</h2>
+
+<mat-dialog-content class="dialog-content">
+    <form class="token-form" [formGroup]="form">
+        <mat-form-field appearance="outline">
+            <mat-label>Client ID</mat-label>
+            <input matInput type="number" formControlName="client_id" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Client Name</mat-label>
+            <input matInput type="text" formControlName="client_name" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Hostname</mat-label>
+            <input matInput type="text" formControlName="hostname" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Group</mat-label>
+            <input matInput type="text" formControlName="group" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>TTL Minutes</mat-label>
+            <input matInput type="number" formControlName="ttl_minutes" />
+        </mat-form-field>
+    </form>
+
+    @if (errorMessage()) {
+        <div class="error-message">
+            {{ errorMessage() }}
+        </div>
+    }
+
+    @if (response()) {
+        <div class="result-box">
+            <div class="result-label">Enrollment Token</div>
+
+            <div class="token-value">
+                {{ response()?.token }}
+            </div>
+
+            <div class="result-row">
+                <span>Expires At:</span>
+                <strong>{{ response()?.expires_at }}</strong>
+            </div>
+
+            <div class="result-row">
+                <span>Bootstrap URL:</span>
+                <strong>{{ response()?.bootstrap_url }}</strong>
+            </div>
+        </div>
+    }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="close()">
+        Close
+    </button>
+
+    <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        [disabled]="form.invalid || loading()"
+        (click)="generateEnrollmentToken()"
+    >
+        @if (loading()) {
+            <mat-spinner diameter="18"></mat-spinner>
+        } @else {
+            Generate Enrollment Token
+        }
+    </button>
+</mat-dialog-actions>

@@ -66,6 +66,8 @@ export class LoginService {
 
     // ---- derived state -------
     readonly isLoggedIn = computed(() => !!this.token());
+    readonly clientId = computed(()=> this.currentUser().client_id);
+    readonly clientName = computed(()=>this.currentUser().client_name);
 
     constructor(@Inject(PLATFORM_ID) platformId: object, private httpClient: HttpClient) {
         this.isBrowser = isPlatformBrowser(platformId);

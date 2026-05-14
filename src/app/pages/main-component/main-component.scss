@@ -133,3 +133,12 @@
     margin-right: 8px;
   }
 }
+.avatar-button {
+    margin-left: 8px;
+
+    mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+    }
+}

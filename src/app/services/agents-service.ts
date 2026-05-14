@@ -5,6 +5,17 @@ import {AgentInfoRes} from './agents.model';
 import { environment } from '../../environments/environment';
 import {LoginService} from './login-service';
 
+export interface GenerateEnrollmentTokenRequest{
+    client_id: number;
+    hostname: string;
+    group: string;
+    ttl_minutes:number;
+}
+export interface GenerateEnrollmentTokenResponse{
+    token: string;
+    expires_at: string;
+    bootstrap_url: string;
+}
 @Injectable({
     providedIn: 'root'
 })
@@ -39,5 +50,8 @@ export class AgentsService {
         const diff = expiry.getTime() - now.getTime();
         const days = diff / (1000 * 60 * 60 * 24);
         return days > 0 && days <= daysThreshold;
+    }
+    generateEnrollmentToken(payload: GenerateEnrollmentTokenRequest): Observable<GenerateEnrollmentTokenResponse> {
+        return this.http.post<GenerateEnrollmentTokenResponse>(`${environment.apiBaseUrl}/enroll/generate`, payload, {headers: this.authHeaders()});
     }
 }

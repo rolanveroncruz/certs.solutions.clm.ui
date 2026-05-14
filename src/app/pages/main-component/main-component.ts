@@ -5,6 +5,10 @@ import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import {MatMenuModule} from "@angular/material/menu";
+import {MatDividerModule} from "@angular/material/divider";
+import {MatDialog} from '@angular/material/dialog';
+import {GenerateEnrollmentTokenDialog} from './generate-enrollment-token-dialog/generate-enrollment-token-dialog';
 
 type MainNavItem = {
   label: string;
@@ -23,12 +27,15 @@ type MainNavItem = {
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
+      MatMenuModule,
+      MatDividerModule,
   ],
   templateUrl: './main-component.html',
   styleUrls: ['./main-component.scss'],
 })
 export class MainComponent {
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
 
   readonly brand = 'CLM';
 
@@ -50,5 +57,13 @@ export class MainComponent {
     // TODO: replace with your auth service + token clearing
     // then redirect to login
     this.router.navigateByUrl('/login').then();
+  }
+  onGenerateToken(){
+      this.dialog.open<GenerateEnrollmentTokenDialog>(GenerateEnrollmentTokenDialog, {
+          width: '640px',
+          maxWidth: '95vw',
+          disableClose: false,
+      })
+
   }
 }

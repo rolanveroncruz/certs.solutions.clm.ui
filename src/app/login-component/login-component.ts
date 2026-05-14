@@ -2,7 +2,6 @@ import {Component, inject, signal} from '@angular/core';
 import {MatCard, MatCardActions, MatCardContent, MatCardHeader} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
 import {MatFormField, MatInput, MatLabel, MatSuffix} from '@angular/material/input';
-import {MatCheckbox} from '@angular/material/checkbox';
 import {MatButton, MatIconButton} from '@angular/material/button';
 
 import {ReactiveFormsModule, FormBuilder, Validators} from '@angular/forms';
@@ -10,7 +9,6 @@ import {ReactiveFormsModule, FormBuilder, Validators} from '@angular/forms';
 // (A) ADDED: router (optional, for redirect after login)
 import {Router} from '@angular/router';
 import {LoginService} from '../services/login-service';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {firstValueFrom} from 'rxjs';
 
 @Component({
@@ -23,7 +21,6 @@ import {firstValueFrom} from 'rxjs';
         MatFormField,
         MatLabel,
         MatSuffix,
-        MatCheckbox,
         MatButton,
         MatCardActions,
         MatInput,
