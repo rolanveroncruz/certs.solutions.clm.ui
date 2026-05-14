@@ -281,3 +281,42 @@
         border-color: #bbf7d0;
     }
 }
+.request-progress-banner {
+    margin: 12px 0 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #eef6ff;
+    border: 1px solid #b7dcff;
+    color: #16456f;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    box-shadow: 0 6px 18px rgba(15, 76, 129, 0.08);
+}
+
+.progress-message {
+    font-weight: 600;
+}
+
+.progress-countdown {
+    font-size: 0.9rem;
+    opacity: 0.75;
+}
+.progress-spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid rgba(22, 69, 111, 0.25);
+    border-top-color: #16456f;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex: 0 0 auto;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

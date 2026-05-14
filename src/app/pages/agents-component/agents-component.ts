@@ -39,6 +39,22 @@ export class AgentsComponent implements OnInit {
     agents = signal<AgentResponse[]>([]);
 
     activeRequest: ActiveCertRequest | null = null;
+    private progressTimerId: ReturnType<typeof setInterval> |null = null;
+    requestProgress = signal({
+        visible: false,
+        secondsLeft: 30,
+        messageIndex: 0,
+    });
+    requestProgressMessages = [
+        "Requesting Server to Generate Private Key",
+        "Generating a Certificate Signing Request (CSR)",
+        "Sending CSR to Server for Signing",
+        "Waiting for Server to Sign Certificate",
+        "Certificate Signed Successfully!",
+        "Installing Certificate on Server",
+        "Verifying Certificate Installation",
+        "Certificate Installation Successful!"
+    ]
 
     constructor(private agentsService: AgentsService) {}
 
@@ -83,9 +99,8 @@ export class AgentsComponent implements OnInit {
     handleModalConfirm(payload: AcquireCertRequest): void {
         this.certsService.acquireCert(payload).subscribe({
             next: () => {
-                alert('Successfully requested certificate');
                 this.activeRequest = null;
-                this.loadAgents();
+                this.startRequestProgressBanner();
             },
             error: (err) => {
                 console.error('Failed to acquire certificate', err);
@@ -93,4 +108,51 @@ export class AgentsComponent implements OnInit {
             },
         });
     }
+
+    startRequestProgressBanner():void{
+        this.stopRequestProgressBanner();
+
+        const totalSeconds = 30;
+        const messageDuration = totalSeconds/this.requestProgressMessages.length;
+
+        this.requestProgress.set({
+            visible: true,
+            secondsLeft: totalSeconds,
+            messageIndex: 0,
+        });
+
+        this.progressTimerId = setInterval(()=>{
+            const current = this.requestProgress();
+            const nextSecondsLeft = current.secondsLeft - 1;
+
+            const nextMessageIndex =
+                Math.floor((totalSeconds - nextSecondsLeft)/messageDuration)
+                    % this.requestProgressMessages.length;
+
+            this.requestProgress.set({
+                visible: nextSecondsLeft > 0,
+                secondsLeft: Math.max(nextSecondsLeft, 0),
+                messageIndex: nextMessageIndex
+            });
+
+            if (nextSecondsLeft <= 0) {
+                this.stopRequestProgressBanner();
+                this.loadAgents();
+            }
+        }, 1000)
+    }
+
+    stopRequestProgressBanner():void{
+        if (this.progressTimerId) {
+            clearInterval(this.progressTimerId);
+            this.progressTimerId = null;
+        }
+
+        this.requestProgress.set({
+            visible: false,
+            secondsLeft: 0,
+            messageIndex: 0,
+        });
+    }
+
 }

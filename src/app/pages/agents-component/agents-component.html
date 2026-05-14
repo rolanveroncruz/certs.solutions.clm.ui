@@ -1,6 +1,15 @@
 <div class="agents-container">
     <h2>Network Agents</h2>
 
+    @if (requestProgress().visible) {
+        <div class="request-progress-banner">
+            <div class="progress-message">
+                {{ requestProgressMessages[requestProgress().messageIndex] }}
+            </div>
+
+            <div class="progress-spinner" aria-label="Processing"></div>
+        </div>
+    }
     @if (loading()) {
         <div class="loader">Scanning network...</div>
     } @else {
