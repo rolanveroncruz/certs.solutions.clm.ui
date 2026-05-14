@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, Output, OnInit, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AcquireCertRequest} from '../../../services/certs.model'
-import {AgentDiscoveryRes} from '../../../services/agents.model';
 
 @Component({
     selector: 'app-cert-request-modal',
@@ -13,7 +12,7 @@ import {AgentDiscoveryRes} from '../../../services/agents.model';
 })
 export class CertRequestModalComponent implements OnInit {
     @Input({ required: true }) agentId!: string;
-    @Input({ required: true }) discovery!: AgentDiscoveryRes;
+    @Input({ required: true }) domainName= '';
     @Output() confirmed = new EventEmitter<AcquireCertRequest>();
     @Output() cancelled = new EventEmitter<void>();
 
@@ -30,9 +29,9 @@ export class CertRequestModalComponent implements OnInit {
     });
 
     ngOnInit(): void {
-        // Auto-populate based on the discovered service info
+        // Autopopulate based on the discovered service info
         this.certForm.patchValue({
-            domain_name: this.discovery.commonName || this.discovery.serviceName
+            domain_name: this.domainName,
         });
     }
 
