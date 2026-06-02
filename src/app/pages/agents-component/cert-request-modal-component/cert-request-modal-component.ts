@@ -1,10 +1,17 @@
-import { Component, EventEmitter, Input, Output, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AcquireCertRequest} from '../../../services/certs.model'
 import {MatTab, MatTabGroup,MatTabsModule} from '@angular/material/tabs';
 import {ConfigSelectorComponent} from '../../../components/config-selector-component/config-selector-component';
+import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 
+export interface CertRequestModalData {
+    agentId: string;
+    domainName: string;
+    mode?: 'request' | 'manageConfig';
+    currentConfigId?:string;
+}
 @Component({
     selector: 'app-cert-request-modal',
     standalone: true,
@@ -14,18 +21,17 @@ import {ConfigSelectorComponent} from '../../../components/config-selector-compo
         MatTabGroup,
         MatTab,
         MatTabsModule,
+        MatDialogModule,
         ConfigSelectorComponent,
     ],
     templateUrl: './cert-request-modal-component.html',
     styleUrls: ['./cert-request-modal-component.scss']
 })
 export class CertRequestModalComponent implements OnInit {
-    @Input({ required: true }) agentId!: string;
-    @Input({ required: true }) domainName= '';
-    @Output() confirmed = new EventEmitter<AcquireCertRequest>();
-    @Output() cancelled = new EventEmitter<void>();
-
     private fb = inject(FormBuilder);
+    private readonly dialogRef = inject(MatDialogRef<CertRequestModalComponent>);
+    readonly data = inject<CertRequestModalData>(MAT_DIALOG_DATA);
+
     selectedConfigId:string | null = null;
 
     // Define the form group with validation
@@ -41,16 +47,27 @@ export class CertRequestModalComponent implements OnInit {
     ngOnInit(): void {
         // Autopopulate based on the discovered service info
         this.certForm.patchValue({
-            domain_name: this.domainName,
+            domain_name: this.data.domainName,
         });
+
+        if (this.data.mode === 'manageConfig'){
+            this.certForm.disable();
+        }
+        if (this.data.currentConfigId){
+            this.selectedConfigId = this.data.currentConfigId;
+        }
     }
 
     onSubmit(): void {
+        if (this.data.mode === 'manageConfig'){
+            this.dialogRef.close({configId:this.selectedConfigId});
+            return;
+        }
         if (this.certForm.valid) {
             const formValue = this.certForm.value;
 
             const payload: AcquireCertRequest = {
-                agent_id: this.agentId,
+                agent_id: this.data.agentId,
                 domain_name: formValue.domain_name ?? '',
                 organization: formValue.organization ?? undefined,
                 country: formValue.country ?? undefined,
@@ -59,12 +76,12 @@ export class CertRequestModalComponent implements OnInit {
                 email_address: formValue.email_address ?? undefined
             };
 
-            this.confirmed.emit(payload);
+            this.dialogRef.close(payload);
         }
     }
 
     onCancel(): void {
-        this.cancelled.emit();
+        this.dialogRef.close();
     }
     onConfigSelect(configId:string): void{
         this.selectedConfigId = configId;
