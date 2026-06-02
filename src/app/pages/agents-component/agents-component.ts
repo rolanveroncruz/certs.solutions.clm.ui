@@ -1,11 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import {RouterLink} from '@angular/router';
 import { AgentsService } from '../../services/agents-service';
 import {
     AgentResponse,
     ServiceData,
-    DomainData, CertDeployment,
+    DomainData,
 } from '../../services/agents.model';
 
 import { CertsService } from '../../services/certs-service';
@@ -14,19 +13,12 @@ import { AcquireCertRequest } from '../../services/certs.model';
 import { LoginService } from '../../services/login-service';
 import {MatDialog} from '@angular/material/dialog';
 
-type ActiveCertRequest = {
-    agentId: string;
-    agent: AgentResponse;
-    service: ServiceData;
-    domain: DomainData;
-};
 
 @Component({
     selector: 'app-agents',
     templateUrl: './agents-component.html',
     imports: [
         DatePipe,
-        CertRequestModalComponent,
     ],
     styleUrls: ['./agents-component.scss'],
     standalone: true
@@ -41,7 +33,6 @@ export class AgentsComponent implements OnInit {
     loading = signal(false);
     agents = signal<AgentResponse[]>([]);
 
-    activeRequest: ActiveCertRequest | null = null;
     private progressTimerId: ReturnType<typeof setInterval> |null = null;
     requestProgress = signal({
         visible: false,
@@ -91,24 +82,27 @@ export class AgentsComponent implements OnInit {
         service: ServiceData,
         domain: DomainData,
     ): void {
-        this.activeRequest = {
-            agentId: agent.id,
-            agent,
-            service,
-            domain,
-        };
-    }
+        const dialogRef = this.dialog.open(CertRequestModalComponent, {
+            width: '750px',
+            maxWidth: '95vw',
+            data:{
+                agentId: agent.id,
+                domainName: domain.domain_name
 
-    handleModalConfirm(payload: AcquireCertRequest): void {
-        this.certsService.acquireCert(payload).subscribe({
-            next: () => {
-                this.activeRequest = null;
-                this.startRequestProgressBanner();
-            },
-            error: (err) => {
-                console.error('Failed to acquire certificate', err);
-                alert('Failed to acquire certificate');
-            },
+            }
+        });
+        dialogRef.afterClosed().subscribe( (payload: AcquireCertRequest |undefined) =>{
+            if (payload){
+                this.certsService.acquireCert(payload).subscribe({
+                    next:()=>{
+                        this.startRequestProgressBanner();
+                    },
+                    error: (err)=>{
+                        console.error('Failed to acquire certificate', err);
+                        alert('Failed to acquire certificate');
+                    }
+                })
+            }
         });
     }
 
@@ -157,23 +151,23 @@ export class AgentsComponent implements OnInit {
             messageIndex: 0,
         });
     }
-    openManageConfigDialog(cert: CertDeployment): void {
-/*
-        const dialogRef = this.dialog.open(ManageConfigDialogComponent, {
-            width: '950px',
+    openManageConfigDialog(agent: AgentResponse, domain: DomainData): void {
+        const dialogRef = this.dialog.open(CertRequestModalComponent, {
+            width: '750px',
             maxWidth: '95vw',
-            maxHeight: '95vh',
             data: {
-                registryCertId: cert.registry_certificate_id,
-                currentConfigId: cert.renewal_configuration_id
+                agentId: agent.id, // Or however you get the agent ID here
+                domainName: domain.domain_name,
+                mode: 'manageConfig',
+                currentConfigId: domain.certificate?.renewal_configuration_id
             }
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            if (result === 'saved') {
-                this.loadAgents(); // Refresh the list to show the updated name
+            if (result?.configId) {
+                // Make your API call to save the new configId
+                // this.loadAgents();
             }
         });
-*/
     }
 }

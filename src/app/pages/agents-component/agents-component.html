@@ -98,7 +98,7 @@
 
                                                                 <button
                                                                     class="btn-manage"
-                                                                    (click)="openManageConfigDialog(domain.certificate)"
+                                                                    (click)="openManageConfigDialog(agent, domain)"
                                                                     >
                                                                     Manage
                                                                 </button>
@@ -131,11 +131,3 @@
     }
 </div>
 
-@if (activeRequest) {
-    <app-cert-request-modal
-        [agentId]="activeRequest.agentId"
-        [domainName]="activeRequest.domain.domain_name"
-        (confirmed)="handleModalConfirm($event)"
-        (cancelled)="activeRequest = null">
-    </app-cert-request-modal>
-}

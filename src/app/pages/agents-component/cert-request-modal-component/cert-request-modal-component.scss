@@ -1,34 +1,22 @@
-.modal-backdrop {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(15, 23, 42, 0.75); // Dark slate backdrop
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
+/* --- 1. Dialog Header Styling --- */
+[mat-dialog-title] {
+    color: #1e293b;
+    font-size: 1.25rem;
+    margin-bottom: 0;
 
-.modal-content {
-    background: #ffffff;
-    width: 750px;
-    max-width: 95%;
-    max-height: 90vh;
-    overflow-y: auto;
-    border-radius: 12px;
-    padding: 1.5rem 2rem;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    .subtitle {
+        color: #64748b;
+    }
 
-    .modal-header {
-        margin-bottom: 1.5rem;
-        h3 { margin: 0; color: #1e293b; font-size: 1.25rem; }
-        .subtitle { margin: 0.25rem 0 0; font-size: 0.875rem; color: #64748b; }
-        code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; color: #2563eb; }
+    code {
+        background: #f1f5f9;
+        padding: 2px 4px;
+        border-radius: 4px;
+        color: #2563eb;
     }
 }
 
+/* --- 2. Form Field Styling --- */
 .form-group {
     margin-bottom: 1.25rem;
     display: flex;
@@ -55,19 +43,15 @@
         }
     }
 
-    .error { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; }
+    .error {
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+    }
 }
 
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-.modal-footer {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: flex-end;
+/* --- 3. Action Buttons Styling --- */
+mat-dialog-actions {
     gap: 0.75rem;
 
     button {
@@ -90,11 +74,18 @@
         background: #2563eb;
         border: 1px solid #2563eb;
         color: white;
-        &:disabled { background: #94a3b8; border-color: #94a3b8; cursor: not-allowed; }
-        &:hover:not(:disabled) { background: #1d4ed8; }
+        &:disabled {
+            background: #94a3b8;
+            border-color: #94a3b8;
+            cursor: not-allowed;
+        }
+        &:hover:not(:disabled) {
+            background: #1d4ed8;
+        }
     }
 }
-/* --- ADD TO BOTTOM OF FILE --- */
+
+/* --- 4. Material Tabs Overrides --- */
 
 /* Override Angular Material's strict tab heights */
 ::ng-deep .mat-mdc-tab-body-wrapper {
@@ -110,4 +101,3 @@
     padding-top: 1.5rem; /* Pushes the form down slightly from the tab headers */
     overflow: visible;
 }
-
