@@ -1,5 +1,6 @@
 <div class="modal-backdrop" (click)="onCancel()">
     <div class="modal-content" (click)="$event.stopPropagation()">
+
         <header class="modal-header">
             <h3>Request New Certificate</h3>
             <p class="subtitle">
@@ -8,43 +9,64 @@
         </header>
 
         <form [formGroup]="certForm" (ngSubmit)="onSubmit()">
-            <div class="form-group">
-                <label for="domain_name">Common Name (Domain)</label>
-                <input id="domain_name" type="text" formControlName="domain_name" placeholder="e.g. api.internal.local">
-                @if (certForm.get('domain_name')?.invalid && certForm.get('domain_name')?.touched) {
-                    <small class="error">Domain name is required.</small>
-                }
-            </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="organization">Organization</label>
-                    <input id="organization" type="text" formControlName="organization" placeholder="Company Inc.">
-                </div>
-                <div class="form-group">
-                    <label for="country">Country (ISO)</label>
-                    <input id="country" type="text" formControlName="country" placeholder="US" maxlength="2">
-                </div>
-            </div>
+            <mat-tab-group animationDuration="0ms">
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="province">State / Province</label>
-                    <input id="province" type="text" formControlName="province" placeholder="California">
-                </div>
-                <div class="form-group">
-                    <label for="locality">City / Locality</label>
-                    <input id="locality" type="text" formControlName="locality" placeholder="San Francisco">
-                </div>
-            </div>
+                <mat-tab label="Certificate Signing Request">
+                    <div class="tab-content-wrapper">
 
+                        <div class="form-group">
+                            <label for="domain_name">Common Name (Domain)</label>
+                            <input id="domain_name" type="text" formControlName="domain_name" placeholder="e.g. api.internal.local">
+                            @if (certForm.get('domain_name')?.invalid && certForm.get('domain_name')?.touched) {
+                                <small class="error">Domain name is required.</small>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label for="organization">Organization</label>
+                            <input id="organization" type="text" formControlName="organization" placeholder="Company Inc.">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="country">Country (ISO)</label>
+                            <input id="country" type="text" formControlName="country" placeholder="US" maxlength="2">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="province">State / Province</label>
+                            <input id="province" type="text" formControlName="province" placeholder="California">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="locality">City / Locality</label>
+                            <input id="locality" type="text" formControlName="locality" placeholder="San Francisco">
+                        </div>
+
+                    </div>
+                </mat-tab>
+
+                <mat-tab label="Renewal Configuration">
+                    <div class="tab-content-wrapper">
+                        <app-config-selector
+                            [currentConfigId]="selectedConfigId"
+                            (configSelected)="onConfigSelect($event)">
+                        </app-config-selector>
+                    </div>
+                </mat-tab>
+
+            </mat-tab-group>
 
             <div class="modal-footer">
                 <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
-                <button type="submit" class="btn-submit" [disabled]="certForm.invalid">
+                <button
+                    type="submit"
+                    class="btn-submit"
+                    [disabled]="certForm.invalid || !selectedConfigId">
                     Generate CSR Command
                 </button>
             </div>
+
         </form>
     </div>
 </div>

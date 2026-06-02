@@ -1,0 +1,32 @@
+<div class="selector-container">
+
+    <div class="left-pane">
+        <mat-radio-group [(ngModel)]="selectedConfigId" (change)="onConfigSelect()">
+            @for (config of configs(); track config.id) {
+                <mat-radio-button [value]="config.id">
+                    {{ config.name }}
+                    @if (currentConfigId === config.id) {
+                        <span class="badge-current">Current</span>
+                    }
+                </mat-radio-button>
+            }
+        </mat-radio-group>
+
+        <div class="actions">
+            <button mat-stroked-button>Create</button>
+            <button mat-stroked-button>Clone and Edit</button>
+        </div>
+    </div>
+
+    <div class="right-pane">
+        @if (selectedConfig()) {
+            <app-config-form-component
+                [config]="selectedConfig()"
+                [isReadonly]="true">
+            </app-config-form-component>
+        } @else {
+            <p class="placeholder">Select a configuration to view details.</p>
+        }
+    </div>
+
+</div>

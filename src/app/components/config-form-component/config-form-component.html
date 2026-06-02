@@ -1,0 +1,30 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Configuration Name</mat-label>
+        <input matInput formControlName="name">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Renew (Days before expiry)</mat-label>
+        <input matInput type="number" formControlName="renew_days_before_expiry">
+    </mat-form-field>
+
+    <div class="checkbox-group">
+        <mat-checkbox formControlName="notify_on_success">Notify on Success</mat-checkbox>
+        <mat-checkbox formControlName="notify_on_failure">Notify on Failure</mat-checkbox>
+    </div>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Notification Emails (comma separated)</mat-label>
+        <input matInput formControlName="notification_emails">
+    </mat-form-field>
+
+    @if (!isReadonly) {
+        <button mat-raised-button color="primary" type="submit">Save Configuration</button>
+    }
+</form>

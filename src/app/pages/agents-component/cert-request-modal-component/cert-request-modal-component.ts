@@ -2,11 +2,20 @@ import { Component, EventEmitter, Input, Output, OnInit, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AcquireCertRequest} from '../../../services/certs.model'
+import {MatTab, MatTabGroup,MatTabsModule} from '@angular/material/tabs';
+import {ConfigSelectorComponent} from '../../../components/config-selector-component/config-selector-component';
 
 @Component({
     selector: 'app-cert-request-modal',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatTabGroup,
+        MatTab,
+        MatTabsModule,
+        ConfigSelectorComponent,
+    ],
     templateUrl: './cert-request-modal-component.html',
     styleUrls: ['./cert-request-modal-component.scss']
 })
@@ -17,6 +26,7 @@ export class CertRequestModalComponent implements OnInit {
     @Output() cancelled = new EventEmitter<void>();
 
     private fb = inject(FormBuilder);
+    selectedConfigId:string | null = null;
 
     // Define the form group with validation
     certForm = this.fb.group({
@@ -56,4 +66,8 @@ export class CertRequestModalComponent implements OnInit {
     onCancel(): void {
         this.cancelled.emit();
     }
+    onConfigSelect(configId:string): void{
+        this.selectedConfigId = configId;
+    }
 }
+

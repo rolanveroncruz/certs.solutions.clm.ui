@@ -1,0 +1,49 @@
+.selector-container {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    min-height: 400px; /* Gives the form room to breathe */
+}
+
+.left-pane {
+    flex: 0 0 35%; /* Takes up 35% of the width */
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(0, 0, 0, 0.12);
+    padding-right: 24px;
+
+    mat-radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        flex: 1; /* Pushes the action buttons to the bottom */
+    }
+
+    .actions {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+}
+
+.right-pane {
+    flex: 1; /* Takes up the remaining 65% */
+}
+
+.placeholder {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    margin-top: 40px;
+}
+
+.badge-current {
+    background-color: #e0e0e0;
+    color: #333;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-left: 10px;
+}

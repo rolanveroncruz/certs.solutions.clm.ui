@@ -11,8 +11,10 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: #4169e1 !important; /* RoyalBlue */
-  color: #fff !important;
+  background: #ffffff !important; /* RoyalBlue */
+  color: #333333 !important;
+
+    height: 80px !important;
 
 }
 .nav-bar {
@@ -20,7 +22,7 @@
   top: 64px;
   z-index: 9;
 
-  background: #4169e1 !important; /* RoyalBlue */
+  background: #be9b4e !important; /* RoyalBlue */
   color: #fff !important;
   /* make icons readable */
   mat-icon {
@@ -59,6 +61,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+      color: #375481;
   }
 }
 
@@ -141,4 +144,13 @@
         width: 32px;
         height: 32px;
     }
+}
+.brand-logo {
+    height: 140px; /* Adjust this value depending on your logo's dimensions */
+    max-height: 100%;
+    width: auto;
+    object-fit: contain;
+    margin-right: 4px; /* Optional: adds a little breathing room before the divider */
+    flex-shrink: 0;
+    display: block;
 }

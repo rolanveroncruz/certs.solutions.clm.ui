@@ -91,6 +91,19 @@
                                                             ✓ Is Publicly Seen
                                                         </span>
                                                     </div>
+                                                    @if (domain.certificate) {
+                                                        <div class="renewal-config-info">
+                                                            <strong>Renewal Configuration:</strong>
+                                                            {{ domain.certificate.renewal_configuration_name || 'Not Managed' }}
+
+                                                                <button
+                                                                    class="btn-manage"
+                                                                    (click)="openManageConfigDialog(domain.certificate)"
+                                                                    >
+                                                                    Manage
+                                                                </button>
+                                                        </div>
+                                                    }
                                                 </div>
 
                                                 <button

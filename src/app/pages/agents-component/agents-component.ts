@@ -1,17 +1,18 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-
+import {RouterLink} from '@angular/router';
 import { AgentsService } from '../../services/agents-service';
 import {
     AgentResponse,
     ServiceData,
-    DomainData,
+    DomainData, CertDeployment,
 } from '../../services/agents.model';
 
 import { CertsService } from '../../services/certs-service';
 import { CertRequestModalComponent } from './cert-request-modal-component/cert-request-modal-component';
 import { AcquireCertRequest } from '../../services/certs.model';
 import { LoginService } from '../../services/login-service';
+import {MatDialog} from '@angular/material/dialog';
 
 type ActiveCertRequest = {
     agentId: string;
@@ -28,10 +29,12 @@ type ActiveCertRequest = {
         CertRequestModalComponent,
     ],
     styleUrls: ['./agents-component.scss'],
+    standalone: true
 })
 export class AgentsComponent implements OnInit {
     private readonly loginService = inject(LoginService);
     private readonly certsService = inject(CertsService);
+    private readonly dialog=inject(MatDialog);
 
     expandedAgentId: string | null = null;
 
@@ -48,8 +51,8 @@ export class AgentsComponent implements OnInit {
     requestProgressMessages = [
         "Requesting Server to Generate Private Key",
         "Generating a Certificate Signing Request (CSR)",
-        "Sending CSR to Server for Signing",
-        "Waiting for Server to Sign Certificate",
+        "Sending CSR to CA for Signing",
+        "Waiting for CA to Sign Certificate",
         "Certificate Signed Successfully!",
         "Installing Certificate on Server",
         "Verifying Certificate Installation",
@@ -154,5 +157,23 @@ export class AgentsComponent implements OnInit {
             messageIndex: 0,
         });
     }
+    openManageConfigDialog(cert: CertDeployment): void {
+/*
+        const dialogRef = this.dialog.open(ManageConfigDialogComponent, {
+            width: '950px',
+            maxWidth: '95vw',
+            maxHeight: '95vh',
+            data: {
+                registryCertId: cert.registry_certificate_id,
+                currentConfigId: cert.renewal_configuration_id
+            }
+        });
 
+        dialogRef.afterClosed().subscribe(result => {
+            if (result === 'saved') {
+                this.loadAgents(); // Refresh the list to show the updated name
+            }
+        });
+*/
+    }
 }

@@ -37,7 +37,6 @@ export class MainComponent {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
 
-  readonly brand = 'CLM';
 
   readonly navItems: MainNavItem[] = [
     { label: 'Dashboard',   icon: 'dashboard',     route: '/main/dashboard' },

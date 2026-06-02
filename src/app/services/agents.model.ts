@@ -5,6 +5,9 @@ export interface CertDeployment {
     is_present: boolean;
     is_managed: boolean;
     is_publicly_seen: boolean;
+    registry_certificate_id: string | null;
+    renewal_configuration_id: string | null;
+    renewal_configuration_name: string | null;
 }
 
 export interface DomainData {

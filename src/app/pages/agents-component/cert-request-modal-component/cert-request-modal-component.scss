@@ -13,8 +13,10 @@
 
 .modal-content {
     background: #ffffff;
-    width: 550px;
+    width: 750px;
     max-width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
     border-radius: 12px;
     padding: 1.5rem 2rem;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -92,3 +94,20 @@
         &:hover:not(:disabled) { background: #1d4ed8; }
     }
 }
+/* --- ADD TO BOTTOM OF FILE --- */
+
+/* Override Angular Material's strict tab heights */
+::ng-deep .mat-mdc-tab-body-wrapper {
+    height: auto !important;
+}
+
+::ng-deep .mat-mdc-tab-body-content {
+    overflow: visible !important;
+}
+
+/* Style the wrapper we added to the HTML */
+.tab-content-wrapper {
+    padding-top: 1.5rem; /* Pushes the form down slightly from the tab headers */
+    overflow: visible;
+}
+
