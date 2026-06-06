@@ -85,19 +85,40 @@ mat-dialog-actions {
     }
 }
 
-/* --- 4. Material Tabs Overrides --- */
+/* --- 4. Material Tabs Overrides (Flexbox Scroll Fix) --- */
+mat-dialog-content {
+    /* Lock the main dialog container so the tab headers never scroll away */
+    overflow: hidden !important;
+    display: flex;
+    flex-direction: column;
+    padding: 0 !important;
 
-/* Override Angular Material's strict tab heights */
-::ng-deep .mat-mdc-tab-body-wrapper {
-    height: auto !important;
+    ::ng-deep .mat-mdc-tab-group {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    ::ng-deep .mat-mdc-tab-body-wrapper {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    ::ng-deep .mat-mdc-tab-body-content {
+        /* Remove scrolling and padding from Material's internal wrapper */
+        overflow: hidden !important;
+        padding: 0 !important;
+        display: flex;
+        flex-direction: column;
+    }
 }
 
-::ng-deep .mat-mdc-tab-body-content {
-    overflow: visible !important;
-}
-
-/* Style the wrapper we added to the HTML */
+/* Move the scrolling and padding to YOUR wrapper instead */
 .tab-content-wrapper {
-    padding-top: 1.5rem; /* Pushes the form down slightly from the tab headers */
-    overflow: visible;
+    flex: 1 1 auto;
+    overflow-y: auto; /* This is now the ONLY vertical scrollbar */
+    padding: 24px;
+    box-sizing: border-box;
+    min-height: 0;
 }

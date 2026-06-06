@@ -32,6 +32,7 @@ export class ConfigFormComponent implements OnInit, OnChanges {
             name: ['', Validators.required],
             description: [''],
             renew_days_before_expiry: [30, Validators.required],
+            notify_days_before_renewal: [],
             notify_on_success: [true],
             notify_on_failure: [true],
             notification_emails: [''], // Will handle array parsing
@@ -44,8 +45,14 @@ export class ConfigFormComponent implements OnInit, OnChanges {
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes['config'] && this.config) {
+
+            let parsedDescription: any = this.config.description;
+            if (parsedDescription && typeof parsedDescription==='object' && 'String' in parsedDescription){
+                parsedDescription = parsedDescription.String;
+            }
             this.form.patchValue({
                 ...this.config,
+                description: parsedDescription,
                 notification_emails: (this.config.notification_emails || []).join(', ')
             });
         }
