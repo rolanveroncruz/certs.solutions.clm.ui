@@ -7,6 +7,12 @@
     overflow-x:hidden;
 }
 
+.create-pane {
+    flex: 1; /* Tells it to fill all available horizontal space safely */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
 .left-pane {
     flex: 0 0 28%; /* Takes up 35% of the width */
     display: flex;
@@ -49,3 +55,4 @@
     font-weight: 500;
     margin-left: 10px;
 }
+

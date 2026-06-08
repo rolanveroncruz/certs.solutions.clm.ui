@@ -36,6 +36,7 @@ export class ConfigFormComponent implements OnInit, OnChanges {
             notify_on_success: [true],
             notify_on_failure: [true],
             notification_emails: [''], // Will handle array parsing
+            is_default: [false]
         });
     }
 

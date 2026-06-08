@@ -22,6 +22,7 @@
     </div>
 
     <div class="checkbox-group">
+
         <mat-checkbox formControlName="notify_on_success">Notify on Success</mat-checkbox>
         <mat-checkbox formControlName="notify_on_failure">Notify on Failure</mat-checkbox>
     </div>
@@ -31,7 +32,11 @@
         <input matInput formControlName="notification_emails">
     </mat-form-field>
 
-    @if (!isReadonly) {
-        <button mat-raised-button color="primary" type="submit">Save Configuration</button>
-    }
+    <div class="form-actions">
+         <mat-checkbox formControlName="is_default">Make Default</mat-checkbox>
+
+        @if (!isReadonly) {
+            <button mat-raised-button color="primary" type="submit">Save Configuration</button>
+        }
+    </div>
 </form>

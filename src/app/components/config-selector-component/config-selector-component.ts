@@ -30,6 +30,8 @@ export class ConfigSelectorComponent implements OnInit {
     selectedConfigId: string | null = null;
     selectedConfig = signal<RenewalConfiguration | null>(null);
 
+    isCreating = signal(false);
+
     private readonly renewalConfigService = inject(RenewalConfigurationService);
 
     ngOnInit(): void {
@@ -66,5 +68,14 @@ export class ConfigSelectorComponent implements OnInit {
             this.selectedConfig.set(config);
             this.configSelected.emit(config.id); // Emit the ID to the parent
         }
+    }
+    startCreate(){
+        this.isCreating.set(true);
+
+    }
+    startClone(){
+        if(!this.selectedConfig()) return;
+        this.isCreating.set(true);
+
     }
 }
