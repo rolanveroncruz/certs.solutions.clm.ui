@@ -54,7 +54,8 @@ export class ConfigFormComponent implements OnInit, OnChanges {
             this.form.patchValue({
                 ...this.config,
                 description: parsedDescription,
-                notification_emails: (this.config.notification_emails || []).join(', ')
+                notification_emails: (this.config.notification_emails || []).join(', '),
+                notify_days_before_renewal : (this.config.notify_days_before_renewal || []).join(', ')
             });
         }
     }
@@ -62,10 +63,35 @@ export class ConfigFormComponent implements OnInit, OnChanges {
     onSubmit() {
         if (this.form.valid) {
             const rawValue = this.form.getRawValue();
+
+            // Parse the comma-separated notify_days_before_rewewal into an array of integers
+            let notifyDays: number[] = [];
+            if (rawValue.notify_days_before_renewal){
+                notifyDays = String(rawValue.notify_days_before_renewal)
+                    .split(',')
+                    .map(s=>parseInt(s.trim(), 10))
+                    .filter(n=>!isNaN(n));
+            }
+            // Parse emails safely
+            let emails: string[] = [];
+            if (rawValue.notification_emails){
+                emails = String(rawValue.notification_emails)
+                    .split(',')
+                    .map(s=>s.trim())
+                    .filter( s=>s.length>0);
+            }
+
+
             this.configChanged.emit({
-                ...this.config!,
+                ...(this.config ||{}),
                 ...rawValue,
-                notification_emails: rawValue.notification_emails.split(',').map((s: string) => s.trim())
+                renew_days_before_expiry: Number(rawValue.renew_days_before_expiry),
+                notify_days_before_renewal: notifyDays,
+                notification_emails: emails,
+                description: {
+                    String: rawValue.description || '',
+                    Valid: !!rawValue.description
+                }
             });
         }
     }

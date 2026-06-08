@@ -47,7 +47,8 @@
                 <div class="tab-content-wrapper" style="padding-top: 16px;">
                     <app-config-selector
                         [currentConfigId]="selectedConfigId"
-                        (configSelected)="onConfigSelect($event)">
+                        (configSelected)="onConfigSelect($event)"
+                        (creatingStateChanged)="isConfigCreating = $event">
                     </app-config-selector>
                 </div>
             </mat-tab>
@@ -60,8 +61,8 @@
         <button
             type="submit"
             class="btn-submit"
-            [disabled]="(data.mode !== 'manageConfig' && certForm.invalid) || !selectedConfigId">
-            {{ data.mode === 'manageConfig' ? 'Save Configuration' : 'Generate CSR Command' }}
+            [disabled]="(data.mode !== 'manageConfig' && certForm.invalid) || !selectedConfigId || isConfigCreating">
+            {{ data.mode === 'manageConfig' ? 'Save Configuration' : 'Initiate Certificate Request' }}
         </button>
     </mat-dialog-actions>
 

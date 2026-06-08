@@ -5,8 +5,8 @@
             <h3 style="margin-top: 0;">Create New Configuration</h3>
 
             <app-config-form-component
-                [config]="null"
-                [isReadonly]="false">
+                [config]="configToEdit()" [isReadonly]="false"
+                (configChanged) = "onConfigSave($event)">
             </app-config-form-component>
 
             <div class="actions" style="margin-top: 16px;">

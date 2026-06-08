@@ -26,11 +26,15 @@ export class ConfigSelectorComponent implements OnInit {
     // Broadcasts the user's choice back to the parent component
     @Output() configSelected = new EventEmitter<string>();
 
+    @Output() creatingStateChanged = new EventEmitter<boolean>();
+
     configs = signal<RenewalConfiguration[]>([]);
     selectedConfigId: string | null = null;
     selectedConfig = signal<RenewalConfiguration | null>(null);
 
     isCreating = signal(false);
+
+    configToEdit = signal<RenewalConfiguration | null>(null);
 
     private readonly renewalConfigService = inject(RenewalConfigurationService);
 
@@ -70,12 +74,33 @@ export class ConfigSelectorComponent implements OnInit {
         }
     }
     startCreate(){
+        this.configToEdit.set(null);
         this.isCreating.set(true);
+        this.creatingStateChanged.emit(true);
 
     }
     startClone(){
         if(!this.selectedConfig()) return;
+        this.configToEdit.set(this.selectedConfig())
         this.isCreating.set(true);
 
+        this.creatingStateChanged.emit(true);
+    }
+    cancelCreate(){
+        this.isCreating.set(false);
+        this.creatingStateChanged.emit(false);
+    }
+    onConfigSave(newConfig: RenewalConfiguration): void {
+        this.renewalConfigService.postRenewalConfiguration(newConfig).subscribe({
+            next:(savedConfig:RenewalConfiguration)=>{
+                this.configs.update(configs => [...configs, savedConfig]);
+                this.selectedConfigId = savedConfig.id;
+                this.onConfigSelect();
+                this.cancelCreate();
+            },
+            error :(err)=>{
+                console.error('Failed to save new configuration', err);
+            }
+        })
     }
 }

@@ -34,6 +34,8 @@ export class CertRequestModalComponent implements OnInit {
 
     selectedConfigId:string | null = null;
 
+    isConfigCreating: boolean = false;
+
     // Define the form group with validation
     certForm = this.fb.group({
         domain_name: ['', [Validators.required, Validators.minLength(3)]],
