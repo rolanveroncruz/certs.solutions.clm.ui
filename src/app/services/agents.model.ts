@@ -8,6 +8,8 @@ export interface CertDeployment {
     registry_certificate_id: string | null;
     renewal_configuration_id: string | null;
     renewal_configuration_name: string | null;
+    renews_days_before_expiry: number;
+    scheduled_renewal_date: string | null;
 }
 
 export interface DomainData {

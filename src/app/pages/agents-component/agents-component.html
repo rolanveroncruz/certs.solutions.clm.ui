@@ -95,6 +95,13 @@
                                                         <div class="renewal-config-info">
                                                             <strong>Renewal Configuration:</strong>
                                                             {{ domain.certificate.renewal_configuration_name || 'Not Managed' }}
+                                                            <span>
+                                                                Renews days before expiry {{domain.certificate.renews_days_before_expiry}}
+                                                            </span>
+                                                            <span>
+                                                                <strong> Renews on</strong>
+                                                                {{domain.certificate.scheduled_renewal_date | date:'mediumDate'}}
+                                                            </span>
 
                                                                 <button
                                                                     class="btn-manage"
@@ -109,7 +116,11 @@
                                                 <button
                                                     class="btn-request"
                                                     (click)="requestCertificate(agent, service, domain)">
-                                                    Request New Cert
+                                                    @if (domain.certificate?.is_managed){
+                                                       <span>Renew Certificate</span>
+                                                    } @else {
+                                                    <span>Request Certificate</span>
+                                                    }
                                                 </button>
                                             </div>
                                         } @empty {
