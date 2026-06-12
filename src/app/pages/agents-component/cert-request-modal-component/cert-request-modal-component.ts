@@ -9,9 +9,17 @@ import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/
 export interface CertRequestModalData {
     agentId: string;
     domainName: string;
+
     mode?: 'request' | 'manageConfig';
     currentConfigId?:string;
+    registryCertId?:string;
 }
+export interface CertRequestModalResult {
+    configId: string | null;
+    registryCertId?: string;
+    acquireRequest?: AcquireCertRequest;
+}
+
 @Component({
     selector: 'app-cert-request-modal',
     standalone: true,
@@ -29,8 +37,9 @@ export interface CertRequestModalData {
 })
 export class CertRequestModalComponent implements OnInit {
     private fb = inject(FormBuilder);
-    private readonly dialogRef = inject(MatDialogRef<CertRequestModalComponent>);
+    private readonly dialogRef = inject(MatDialogRef<CertRequestModalComponent, CertRequestModalResult>);
     readonly data = inject<CertRequestModalData>(MAT_DIALOG_DATA);
+    readonly registryCertId = this.data.registryCertId;
 
     selectedConfigId:string | null = null;
 
@@ -48,6 +57,7 @@ export class CertRequestModalComponent implements OnInit {
 
     ngOnInit(): void {
         // Autopopulate based on the discovered service info
+        console.log('registry_certificate_id', this.data.registryCertId);
         this.certForm.patchValue({
             domain_name: this.data.domainName,
         });
@@ -62,13 +72,16 @@ export class CertRequestModalComponent implements OnInit {
 
     onSubmit(): void {
         if (this.data.mode === 'manageConfig'){
-            this.dialogRef.close({configId:this.selectedConfigId});
+            this.dialogRef.close({
+                configId:this.selectedConfigId,
+                registryCertId: this.registryCertId});
             return;
         }
+
         if (this.certForm.valid) {
             const formValue = this.certForm.value;
 
-            const payload: AcquireCertRequest = {
+            const acquireRequest: AcquireCertRequest = {
                 agent_id: this.data.agentId,
                 domain_name: formValue.domain_name ?? '',
                 organization: formValue.organization ?? undefined,
@@ -78,7 +91,11 @@ export class CertRequestModalComponent implements OnInit {
                 email_address: formValue.email_address ?? undefined
             };
 
-            this.dialogRef.close(payload);
+            this.dialogRef.close({
+                acquireRequest: acquireRequest,
+                configId:this.selectedConfigId,
+                registryCertId: this.registryCertId,
+            });
         }
     }
 

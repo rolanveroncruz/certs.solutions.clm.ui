@@ -31,7 +31,7 @@ export interface RenewalConfiguration {
 })
 export class RenewalConfigurationService {
     private readonly renewalConfigApiUrl = `${environment.apiBaseUrl}/renewal-configs`;
-    private readonly certsApiUrl = `${environment.apiBaseUrl}/api/v1/certs`;
+    private readonly certsApiUrl = `${environment.apiBaseUrl}/certs`;
     private readonly loginService =inject(LoginService);
     private readonly clientId = this.loginService.clientId();
     private readonly httpClient = inject(HttpClient);

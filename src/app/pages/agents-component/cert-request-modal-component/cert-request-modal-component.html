@@ -1,8 +1,22 @@
 <h2 mat-dialog-title>
     {{ data.mode === 'manageConfig' ? 'Manage Renewal Configuration' : 'Request New Certificate' }}
-    <p class="subtitle" style="font-size: 14px; margin-top: 4px; font-weight: normal;">
-        Target Agent: <code>{{ data.agentId }}</code>
-    </p>
+    <div class="modal-context-subtitle">
+        <div class="subtitle-item">
+            <span class="label">Target Agent:</span>
+            <code>{{ data.agentId }}</code>
+        </div>
+        @if (registryCertId) {
+            <div class="subtitle-item">
+                <span class="label">Registry Cert ID:</span>
+                <code>{{ registryCertId }}</code>
+            </div>
+        } @else {
+            <div class="subtitle-item unassigned">
+                <span class="label">Registry Cert ID:</span>
+                <span class="italicized">Unassigned (New Enrollment)</span>
+            </div>
+        }
+    </div>
 </h2>
 
 <form [formGroup]="certForm" (ngSubmit)="onSubmit()">

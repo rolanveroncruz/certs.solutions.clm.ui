@@ -8,10 +8,13 @@ import {
 } from '../../services/agents.model';
 
 import { CertsService } from '../../services/certs-service';
-import { CertRequestModalComponent } from './cert-request-modal-component/cert-request-modal-component';
-import { AcquireCertRequest } from '../../services/certs.model';
+import {
+    CertRequestModalComponent,
+    CertRequestModalResult
+} from './cert-request-modal-component/cert-request-modal-component';
 import { LoginService } from '../../services/login-service';
 import {MatDialog} from '@angular/material/dialog';
+import {RenewalConfigurationService} from '../../services/renewal-configuration-service';
 
 
 @Component({
@@ -26,6 +29,7 @@ import {MatDialog} from '@angular/material/dialog';
 export class AgentsComponent implements OnInit {
     private readonly loginService = inject(LoginService);
     private readonly certsService = inject(CertsService);
+    private readonly renewalConfigService = inject(RenewalConfigurationService);
     private readonly dialog=inject(MatDialog);
 
     expandedAgentId: string | null = null;
@@ -79,7 +83,7 @@ export class AgentsComponent implements OnInit {
 
     requestCertificate(
         agent: AgentResponse,
-        service: ServiceData,
+        _: ServiceData,
         domain: DomainData,
     ): void {
         const dialogRef = this.dialog.open(CertRequestModalComponent, {
@@ -87,19 +91,65 @@ export class AgentsComponent implements OnInit {
             maxWidth: '95vw',
             data:{
                 agentId: agent.id,
-                domainName: domain.domain_name
-
+                domainName: domain.domain_name,
+                mode: 'request',
+                registryCertId: domain.certificate?.registry_certificate_id,
             }
         });
-        dialogRef.afterClosed().subscribe( (payload: AcquireCertRequest |undefined) =>{
-            if (payload){
-                this.certsService.acquireCert(payload).subscribe({
+        dialogRef.afterClosed().subscribe( (payload: CertRequestModalResult) =>{
+            if (payload && payload.acquireRequest){
+                this.certsService.acquireCert(payload.acquireRequest).subscribe({
                     next:()=>{
                         this.startRequestProgressBanner();
+                        if (payload.configId && payload.registryCertId){
+                            this.renewalConfigService.patchCertificate(payload.registryCertId, payload.configId).subscribe({
+                                next:()=> {
+                                    this.loadAgents();
+                                },
+                                error: (err)=>{
+                                    console.error('Failed to assign renewal configuration', err);
+                                    alert('Failed to assign renewal configuration');
+                                }
+                            })
+                        }
                     },
                     error: (err)=>{
                         console.error('Failed to acquire certificate', err);
                         alert('Failed to acquire certificate');
+                    }
+                })
+            }
+        });
+    }
+
+
+    openManageConfigDialog(
+        agent: AgentResponse,
+        domain: DomainData
+    ): void {
+        console.log("agent:", agent);
+        console.log("registry_certificate_id:", domain.certificate?.registry_certificate_id);
+        const dialogRef = this.dialog.open(CertRequestModalComponent, {
+            width: '750px',
+            maxWidth: '95vw',
+            data: {
+                agentId: agent.id,
+                domainName: domain.domain_name,
+                mode: 'manageConfig',
+                currentConfigId: domain.certificate?.renewal_configuration_id,
+                registryCertId: domain.certificate?.registry_certificate_id,
+            }
+        });
+
+        dialogRef.afterClosed().subscribe((payload:CertRequestModalResult)=> {
+            if (payload?.configId && payload?.registryCertId) {
+                this.renewalConfigService.patchCertificate(payload.registryCertId, payload.configId).subscribe({
+                    next:()=>{
+                        this.loadAgents();
+                    },
+                    error: (err)=>{
+                        console.error('Failed to assign renewal configuration', err);
+                        alert('Failed to assign renewal configuration');
                     }
                 })
             }
@@ -124,7 +174,7 @@ export class AgentsComponent implements OnInit {
 
             const nextMessageIndex =
                 Math.floor((totalSeconds - nextSecondsLeft)/messageDuration)
-                    % this.requestProgressMessages.length;
+                % this.requestProgressMessages.length;
 
             this.requestProgress.set({
                 visible: nextSecondsLeft > 0,
@@ -149,25 +199,6 @@ export class AgentsComponent implements OnInit {
             visible: false,
             secondsLeft: 0,
             messageIndex: 0,
-        });
-    }
-    openManageConfigDialog(agent: AgentResponse, domain: DomainData): void {
-        const dialogRef = this.dialog.open(CertRequestModalComponent, {
-            width: '750px',
-            maxWidth: '95vw',
-            data: {
-                agentId: agent.id, // Or however you get the agent ID here
-                domainName: domain.domain_name,
-                mode: 'manageConfig',
-                currentConfigId: domain.certificate?.renewal_configuration_id
-            }
-        });
-
-        dialogRef.afterClosed().subscribe(result => {
-            if (result?.configId) {
-                // Make your API call to save the new configId
-                // this.loadAgents();
-            }
         });
     }
 }
