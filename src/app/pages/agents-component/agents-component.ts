@@ -10,6 +10,7 @@ import {
 import { CertsService } from '../../services/certs-service';
 import {
     CertRequestModalComponent,
+    CertRequestModalData,
     CertRequestModalResult
 } from './cert-request-modal-component/cert-request-modal-component';
 import { LoginService } from '../../services/login-service';
@@ -86,17 +87,20 @@ export class AgentsComponent implements OnInit {
         _: ServiceData,
         domain: DomainData,
     ): void {
-        const dialogRef = this.dialog.open(CertRequestModalComponent, {
+        const dialogRef = this.dialog.open<CertRequestModalComponent,
+            CertRequestModalData,
+            CertRequestModalResult
+        >(CertRequestModalComponent, {
             width: '750px',
             maxWidth: '95vw',
             data:{
                 agentId: agent.id,
                 domainName: domain.domain_name,
                 mode: 'request',
-                registryCertId: domain.certificate?.registry_certificate_id,
+                registryCertId: domain.certificate?.registry_certificate_id ?? undefined
             }
         });
-        dialogRef.afterClosed().subscribe( (payload: CertRequestModalResult) =>{
+        dialogRef.afterClosed().subscribe( (payload ) =>{
             if (payload && payload.acquireRequest){
                 this.certsService.acquireCert(payload.acquireRequest).subscribe({
                     next:()=>{
@@ -129,19 +133,22 @@ export class AgentsComponent implements OnInit {
     ): void {
         console.log("agent:", agent);
         console.log("registry_certificate_id:", domain.certificate?.registry_certificate_id);
-        const dialogRef = this.dialog.open(CertRequestModalComponent, {
+        const dialogRef = this.dialog.open<CertRequestModalComponent,
+            CertRequestModalData,
+            CertRequestModalResult
+        >(CertRequestModalComponent, {
             width: '750px',
             maxWidth: '95vw',
             data: {
                 agentId: agent.id,
                 domainName: domain.domain_name,
                 mode: 'manageConfig',
-                currentConfigId: domain.certificate?.renewal_configuration_id,
-                registryCertId: domain.certificate?.registry_certificate_id,
+                currentConfigId: domain.certificate?.renewal_configuration_id ?? undefined,
+                registryCertId: domain.certificate?.registry_certificate_id ?? undefined
             }
         });
 
-        dialogRef.afterClosed().subscribe((payload:CertRequestModalResult)=> {
+        dialogRef.afterClosed().subscribe((payload)=> {
             if (payload?.configId && payload?.registryCertId) {
                 this.renewalConfigService.patchCertificate(payload.registryCertId, payload.configId).subscribe({
                     next:()=>{

@@ -39,6 +39,9 @@ export class ConfigSelectorComponent implements OnInit {
     private readonly renewalConfigService = inject(RenewalConfigurationService);
 
     ngOnInit(): void {
+        if (this.currentConfigId){
+            this.selectedConfigId = this.currentConfigId
+        }
         this.loadConfigs();
     }
 
@@ -50,7 +53,7 @@ export class ConfigSelectorComponent implements OnInit {
                 if (data.length> 0){
                     // check if currentConfigId actually exists in the fetched data
                     const idExists = data.some(c=>c.id === this.currentConfigId);
-                    if (this.currentConfigId && !idExists) {
+                    if (this.currentConfigId && idExists) {
                         //use the provided ID
                         this.selectedConfigId = this.currentConfigId;
                     } else {
