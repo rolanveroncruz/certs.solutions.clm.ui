@@ -55,4 +55,43 @@
     font-weight: 500;
     margin-left: 10px;
 }
+// ✅ New pill styling
+.cert-count-pill {
+    display: inline-block;
+    background-color: #f0f0f0; // A very subtle, neutral grey
+    color: #555;               // Dark enough for contrast, light enough to remain secondary
+    font-size: 11px;           // Small, distinct text
+    font-weight: 500;
+    padding: 2px 8px;          // Creates the horizontal pill shape
+    border-radius: 12px;       // Heavily rounded edges
+    margin-left: 8px;          // Breathing room between the config name and the pill
+    letter-spacing: 0.5px;     // Slight tracking makes small, uppercase/numeric text easier to read
+    vertical-align: middle;    // Keeps it vertically centered with the radio button label
+}
 
+// Optional: If your app has a dark mode, you might want a slightly darker background for the pill
+@media (prefers-color-scheme: dark) {
+    .cert-count-pill {
+        background-color: #333;
+        color: #ddd;
+    }
+}
+
+.actions {
+    display: flex;
+    gap: 8px;          // ✅ Keeps a clean, uniform space between the buttons
+    margin-top: 16px;
+    flex-wrap: wrap;   // ✅ Prevents overlapping on very small screens
+
+    // ✅ Overrides for Angular Material Buttons
+    button {
+        height: 32px !important;       // Makes the button shorter (Default is usually 36px or 40px)
+        padding: 0 12px !important;    // Reduces horizontal padding to make it narrower
+        font-size: 13px !important;    // Shrinks the text slightly to fit the new size
+
+        // Ensures the text stays vertically centered in the newly shrunk button
+        ::ng-deep .mdc-button__label {
+            line-height: normal;
+        }
+    }
+}

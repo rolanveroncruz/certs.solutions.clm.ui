@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRadioModule } from '@angular/material/radio';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import { RenewalConfigurationService, RenewalConfiguration } from '../../services/renewal-configuration-service';
 import { ConfigFormComponent } from '../config-form-component/config-form-component';
 
@@ -14,6 +15,7 @@ import { ConfigFormComponent } from '../config-form-component/config-form-compon
         FormsModule,
         MatButtonModule,
         MatRadioModule,
+        MatTooltipModule,
         ConfigFormComponent
     ],
     templateUrl: './config-selector-component.html',
@@ -105,5 +107,38 @@ export class ConfigSelectorComponent implements OnInit {
                 console.error('Failed to save new configuration', err);
             }
         })
+    }
+
+    deleteConfig(): void {
+        const config = this.selectedConfig();
+        if (!config) return;
+
+        // ✅ Smart confirmation message using the count we just added!
+        const confirmMsg = config.valid_certificate_count && config.valid_certificate_count > 0
+            ? `Are you sure you want to delete '${config.name}'?\n\nIts ${config.valid_certificate_count} attached certificates will be reassigned to your default policy.`
+            : `Are you sure you want to delete '${config.name}'?`;
+
+        if (confirm(confirmMsg)) {
+            // Ensure this method matches the one we fixed in your RenewalConfigurationService
+            this.renewalConfigService.deleteRenewalConfiguration(config.id).subscribe({
+                next: () => {
+                    // Remove the deleted config from the local array
+                    this.configs.update(configs => configs.filter(c => c.id !== config.id));
+
+                    // Reset selection to the first available config, or null if empty
+                    if (this.configs().length > 0) {
+                        this.selectedConfigId = this.configs()[0].id;
+                    } else {
+                        this.selectedConfigId = null;
+                    }
+                    this.onConfigSelect();
+                },
+                error: (err) => {
+                    console.error('Failed to delete configuration', err);
+                    // Displays the 403 Forbidden or 409 Conflict messages from your Go backend
+                    alert(err.error || 'Failed to delete configuration.');
+                }
+            });
+        }
     }
 }

@@ -24,6 +24,7 @@ export interface RenewalConfiguration {
     is_default: boolean;
     created_at: string | null;
     updated_at: string | null;
+    valid_certificate_count?: number;
 }
 
 @Injectable({
@@ -53,6 +54,10 @@ export class RenewalConfigurationService {
         return this.httpClient.post<RenewalConfiguration>(
             this.renewalConfigApiUrl, payload, { headers: this.authHeaders() }
         );
+    }
+    deleteRenewalConfiguration(config_id: string): Observable<void>{
+        return this.httpClient.delete<void>(`${this.renewalConfigApiUrl}/${config_id}`,
+            {headers: this.authHeaders()})
     }
 
     patchCertificate(registry_id: string, config_id: string): Observable<void> {
