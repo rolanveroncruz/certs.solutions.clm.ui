@@ -68,4 +68,12 @@ export class RenewalConfigurationService {
         );
     }
 
+    putRenewalConfiguration(config_id: string, payload: Partial<RenewalConfiguration>): Observable<RenewalConfiguration> {
+        return this.httpClient.put<RenewalConfiguration>(
+            `${this.renewalConfigApiUrl}/${config_id}`,
+            payload,
+            { headers: this.authHeaders() }
+        );
+    }
+
 }

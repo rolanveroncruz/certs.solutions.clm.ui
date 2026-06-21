@@ -33,12 +33,11 @@
 
             <div class="actions">
                 <button mat-stroked-button type="button" (click)="startCreate()">Create</button>
-                <button mat-stroked-button type="button" (click)="startClone()">Clone and Edit</button>
                 <button
                     mat-stroked-button
                     color="warn"
                     type="button"
-                    [disabled]="!selectedConfig()"
+                    [disabled]="!selectedConfig() || !isOwner()"
                     (click)="deleteConfig()">
                     Delete
                 </button>
@@ -49,7 +48,8 @@
             @if (selectedConfig()) {
                 <app-config-form-component
                     [config]="selectedConfig()"
-                    [isReadonly]="true">
+                    [isReadonly]="!isOwner()"
+                    (configChanged) = "onConfigEdit($event)">
                 </app-config-form-component>
             } @else {
                 <p class="placeholder">Select a configuration to view details.</p>

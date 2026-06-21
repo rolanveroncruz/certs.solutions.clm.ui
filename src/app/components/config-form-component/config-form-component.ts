@@ -45,6 +45,13 @@ export class ConfigFormComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
+        if (changes['isReadonly']) {
+            if (this.isReadonly){
+                this.form.disable();
+            } else {
+                this.form.enable();
+            }
+        }
         if (changes['config'] && this.config) {
 
             let parsedDescription: any = this.config.description;

@@ -76,7 +76,7 @@
             type="submit"
             class="btn-submit"
             [disabled]="(data.mode !== 'manageConfig' && certForm.invalid) || !selectedConfigId || isConfigCreating">
-            {{ data.mode === 'manageConfig' ? 'Save Configuration' : 'Initiate Certificate Request' }}
+            {{ data.mode === 'manageConfig' ? 'Use Selected Configuration' : 'Initiate Certificate Request' }}
         </button>
     </mat-dialog-actions>
 

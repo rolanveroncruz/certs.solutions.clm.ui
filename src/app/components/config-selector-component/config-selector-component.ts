@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnInit, inject, signal } from '@angular/core';
+import {Component, EventEmitter, Input, Output, OnInit, inject, signal, computed} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,6 +6,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { RenewalConfigurationService, RenewalConfiguration } from '../../services/renewal-configuration-service';
 import { ConfigFormComponent } from '../config-form-component/config-form-component';
+import {LoginService} from '../../services/login-service';
 
 @Component({
     selector: 'app-config-selector',
@@ -22,6 +23,29 @@ import { ConfigFormComponent } from '../config-form-component/config-form-compon
     styleUrls: ['./config-selector-component.scss']
 })
 export class ConfigSelectorComponent implements OnInit {
+    private readonly renewalConfigService = inject(RenewalConfigurationService);
+    private readonly loginService = inject(LoginService);
+
+    isOwner = computed(() => {
+        const config = this.selectedConfig();
+        if (!config || !config.client_id) return false;
+
+        // 1. Extract the raw number if Go sent it as a sql.NullInt64 object
+        let dbClientId: any = config.client_id;
+        console.log("In isOwner() dbClientId:", dbClientId, "type is:", typeof dbClientId.Int64);
+        if (typeof dbClientId === 'object' && 'Int64' in dbClientId) {
+            dbClientId = dbClientId.Int64;
+        }
+
+        // 2. Force both sides into Strings to defeat the ("1" === 1) strict equality failure
+        const safeDbId = String(dbClientId);
+        console.log("In isOwner() loginService.clientId:", this.loginService.clientId(), "type is:", typeof(this.loginService.clientId()));
+        const safeUserId = String(this.loginService.clientId());
+
+        return safeDbId === safeUserId;
+    });
+
+
     // Accepts a pre-selected ID if one exists
     @Input() currentConfigId: string | null = null;
 
@@ -38,7 +62,6 @@ export class ConfigSelectorComponent implements OnInit {
 
     configToEdit = signal<RenewalConfiguration | null>(null);
 
-    private readonly renewalConfigService = inject(RenewalConfigurationService);
 
     ngOnInit(): void {
         if (this.currentConfigId){
@@ -141,4 +164,19 @@ export class ConfigSelectorComponent implements OnInit {
             });
         }
     }
+    onConfigEdit(updatedConfig: RenewalConfiguration): void {
+        this.renewalConfigService.putRenewalConfiguration(updatedConfig.id, updatedConfig).subscribe({
+            next: (savedConfig: RenewalConfiguration) => {
+                // Update the specific configuration in the local array
+                this.configs.update(configs => configs.map(c => c.id === savedConfig.id ? savedConfig : c));
+                this.selectedConfig.set(savedConfig); // Refresh the view
+                alert('Configuration updated successfully!');
+            },
+            error: (err) => {
+                console.error('Failed to update configuration', err);
+                alert(err.error || 'Failed to update configuration.');
+            }
+        });
+    }
+
 }
