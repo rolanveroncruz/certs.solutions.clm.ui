@@ -1,9 +1,9 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {LoginService} from './login-service';
-import { AgentResponse } from './agents.model';
+import {AgentCertificateRowFlat, AgentResponse} from './agents.model';
 
 export interface GenerateEnrollmentTokenRequest{
     client_id: number;
@@ -62,5 +62,45 @@ export class AgentsService {
     }
     generateEnrollmentToken(payload: GenerateEnrollmentTokenRequest): Observable<GenerateEnrollmentTokenResponse> {
         return this.http.post<GenerateEnrollmentTokenResponse>(`${environment.apiBaseUrl}/enroll/generate`, payload, {headers: this.authHeaders()});
+    }
+
+    listAgentsAsRows(client_id: number): Observable<AgentCertificateRowFlat[]> { // 🟩
+        return this.listAgents(client_id).pipe(
+            map((agents: AgentResponse[]) => {
+                const rows: AgentCertificateRowFlat[] = [];
+
+                for (const agent of agents) {
+                    for (const service of agent.services) {
+                        for (const domain of service.domains) {
+                            rows.push({
+                                agentId: agent.id,
+                                agentIdentity: agent.agent_identity,
+                                hostname: agent.hostname,
+                                isOnline: agent.is_online,
+
+                                serviceId: service.service_id,
+                                serviceName: service.name,
+
+                                domainName: domain.domain_name,
+                                domainLastSeen: domain.last_seen,
+
+                                certPath: domain.certificate?.cert_path ?? null,
+                                certIssuer: domain.certificate?.issuer ?? null,
+                                certExpiry: domain.certificate?.expiry ?? null,
+                                certIsPresent: domain.certificate?.is_present ?? false,
+                                certIsManaged: domain.certificate?.is_managed ?? false,
+                                certIsPubliclySeen: domain.certificate?.is_publicly_seen ?? false,
+                                registryCertificateId: domain.certificate?.registry_certificate_id ?? null,
+                                renewalConfigurationId: domain.certificate?.renewal_configuration_id ?? null,
+                                renewalConfigurationName: domain.certificate?.renewal_configuration_name ?? null,
+                                renewsDaysBeforeExpiry: domain.certificate?.renews_days_before_expiry ?? null,
+                                scheduledRenewalDate: domain.certificate?.scheduled_renewal_date ?? null,
+                            });
+                        }
+                    }
+                }
+                return rows;
+            })
+        );
     }
 }

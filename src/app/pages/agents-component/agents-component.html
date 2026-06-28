@@ -1,19 +1,24 @@
-<div class="agents-container">
-    <h2>Network Agents</h2>
-
-    @if (requestProgress().visible) {
-        <div class="request-progress-banner">
-            <div class="progress-message">
-                {{ requestProgressMessages[requestProgress().messageIndex] }}
-            </div>
-
-            <div class="progress-spinner" aria-label="Processing"></div>
+<div class="agents-container" [class.full-width]="viewMode() === 'table'">
+    <div class="view-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;"> <h2>Network Agents</h2> <div class="toggle-buttons"> <button mat-stroked-button [disabled]="viewMode() === 'cards'" (click)="viewMode.set('cards')" style="margin-right: 0.5rem;">Card View</button> <button mat-stroked-button [disabled]="viewMode() === 'table'" (click)="viewMode.set('table')">Table View</button> </div> </div> @if (requestProgress().visible) {
+    <div class="request-progress-banner">
+        <div class="progress-message">
+            {{ requestProgressMessages[requestProgress().messageIndex] }}
         </div>
-    }
+
+        <div class="progress-spinner" aria-label="Processing"></div>
+    </div>
+}
     @if (loading()) {
         <div class="loader">Scanning network...</div>
     } @else {
-        <div class="agent-list">
+        @if (viewMode() === 'table') {
+            <app-generic-data-table
+                [data]="tableRows()"
+                [columnDefs]="columnDefs"
+                [showAddButton]="false"
+                [filterSelectKeys]="['serviceName', 'certIssuer']" [pageSize]="10">
+            </app-generic-data-table> }
+        @else { <div class="agent-list">
             @for (agent of agents(); track agent.id) {
                 <div class="agent-card" [class.expanded]="expandedAgentId === agent.id">
                     <div class="agent-header" (click)="toggleAgent(agent.id)">
@@ -35,16 +40,15 @@
                     @if (expandedAgentId === agent.id) {
                         <div class="agent-details">
                             <div class="system-meta">
-                                <span>
-                                    <strong>Agent ID:</strong> {{ agent.id }}
-                                </span>
+                                    <span>
+                                        <strong>Agent ID:</strong> {{ agent.id }}
+                                    </span>
 
                                 <span>
-                                    <strong>Status:</strong>
+                                        <strong>Status:</strong>
                                     {{ agent.is_online ? 'Online' : 'Offline' }}
-                                </span>
+                                    </span>
                             </div>
-                            <!-- system-meta -->
 
                             <section class="detail-section">
                                 <h4>Services</h4>
@@ -61,12 +65,12 @@
                                                 <div class="service-info">
                                                     <strong>{{ domain.domain_name }}</strong>
                                                     <span class="port-list">
-                                                        Last seen: {{ domain.last_seen | date:'medium' }}
-                                                    </span>
+                                                            Last seen: {{ domain.last_seen | date:'medium' }}
+                                                        </span>
 
                                                     @if (domain.certificate) {
                                                         <span class="cert-tag">
-                                                            Signed by:
+                                                                Signed by:
                                                             {{ domain.certificate.issuer }}
                                                             — expires
                                                             {{ domain.certificate.expiry | date:'mediumDate' }} </span>
@@ -74,41 +78,41 @@
                                                     } @else {
                                                     }
                                                     <div class="cert-checks">
-                                                        <span class="cert-check"
-                                                              [class.enabled]="domain.certificate?.is_present">
-                                                            ✓ Is Present
-                                                        </span>
+                                                            <span class="cert-check"
+                                                                  [class.enabled]="domain.certificate?.is_present">
+                                                                ✓ Is Present
+                                                            </span>
 
                                                         <span
                                                             class="cert-check"
                                                             [class.enabled]="domain.certificate?.is_managed">
-                                                            ✓ Is Managed
-                                                        </span>
+                                                                ✓ Is Managed
+                                                            </span>
 
                                                         <span
                                                             class="cert-check"
                                                             [class.enabled]="domain.certificate?.is_publicly_seen">
-                                                            ✓ Is Publicly Seen
-                                                        </span>
+                                                                ✓ Is Publicly Seen
+                                                            </span>
                                                     </div>
                                                     @if (domain.certificate) {
                                                         <div class="renewal-config-info">
                                                             <strong>Renewal Configuration:</strong>
                                                             {{ domain.certificate.renewal_configuration_name || 'Not Managed' }}
                                                             <span>
-                                                                Renews days before expiry {{domain.certificate.renews_days_before_expiry}}
-                                                            </span>
+                                                                    Renews days before expiry {{domain.certificate.renews_days_before_expiry}}
+                                                                </span>
                                                             <span>
-                                                                <strong> Renews on</strong>
+                                                                    <strong> Renews on</strong>
                                                                 {{domain.certificate.scheduled_renewal_date | date:'mediumDate'}}
-                                                            </span>
+                                                                </span>
 
-                                                                <button
-                                                                    class="btn-manage"
-                                                                    (click)="openManageConfigDialog(agent, domain)"
-                                                                    >
-                                                                    Manage
-                                                                </button>
+                                                            <button
+                                                                class="btn-manage"
+                                                                (click)="openManageConfigDialog(agent, domain)"
+                                                            >
+                                                                Manage
+                                                            </button>
                                                         </div>
                                                     }
                                                 </div>
@@ -117,9 +121,9 @@
                                                     class="btn-request"
                                                     (click)="requestCertificate(agent, service, domain)">
                                                     @if (domain.certificate?.is_managed){
-                                                       <span>Renew Certificate</span>
+                                                        <span>Renew Certificate</span>
                                                     } @else {
-                                                    <span>Request Certificate</span>
+                                                        <span>Request Certificate</span>
                                                     }
                                                 </button>
                                             </div>
@@ -139,6 +143,5 @@
                 <div class="empty-state">No agents reported.</div>
             }
         </div>
-    }
+        } }
 </div>
-

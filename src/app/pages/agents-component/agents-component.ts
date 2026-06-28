@@ -5,6 +5,7 @@ import {
     AgentResponse,
     ServiceData,
     DomainData,
+    AgentCertificateRowFlat,
 } from '../../services/agents.model';
 
 import { CertsService } from '../../services/certs-service';
@@ -16,6 +17,8 @@ import {
 import { LoginService } from '../../services/login-service';
 import {MatDialog} from '@angular/material/dialog';
 import {RenewalConfigurationService} from '../../services/renewal-configuration-service';
+import {GenericDataTableComponent} from '../../components/generic-data-table-component/generic-data-table-component';
+import {TableColumn} from '../../components/generic-data-table-component/table-interfaces';
 
 
 @Component({
@@ -23,6 +26,7 @@ import {RenewalConfigurationService} from '../../services/renewal-configuration-
     templateUrl: './agents-component.html',
     imports: [
         DatePipe,
+        GenericDataTableComponent,
     ],
     styleUrls: ['./agents-component.scss'],
     standalone: true
@@ -32,11 +36,14 @@ export class AgentsComponent implements OnInit {
     private readonly certsService = inject(CertsService);
     private readonly renewalConfigService = inject(RenewalConfigurationService);
     private readonly dialog=inject(MatDialog);
+    private readonly agentsService = inject(AgentsService);
 
     expandedAgentId: string | null = null;
+    viewMode = signal<'cards' | 'table'>('table');
 
     loading = signal(false);
     agents = signal<AgentResponse[]>([]);
+    tableRows = signal<AgentCertificateRowFlat[]>([]);
 
     private progressTimerId: ReturnType<typeof setInterval> |null = null;
     requestProgress = signal({
@@ -44,6 +51,19 @@ export class AgentsComponent implements OnInit {
         secondsLeft: 30,
         messageIndex: 0,
     });
+// Define table columns without action buttons for this milestone
+    columnDefs: TableColumn<AgentCertificateRowFlat>[] = [
+        { key: 'hostname', label: 'Host / Agent', sortable: true },
+        { key: 'isOnline', label: 'Online', cellTemplateKey: 'check', sortable: true },
+        { key: 'serviceName', label: 'Service', sortable: true },
+        { key: 'domainName', label: 'Domain / Endpoint', sortable: true },
+        { key: 'certIssuer', label: 'Issuer', sortable: true },
+        { key: 'certExpiry', label: 'Expiration', cellTemplateKey: 'date', sortable: true },
+        { key: 'certIsPresent', label: 'Present', cellTemplateKey: 'check', sortable: true },
+        { key: 'certIsManaged', label: 'Managed', cellTemplateKey: 'check', sortable: true },
+        { key: 'renewalConfigurationName', label: 'Renewal Group', sortable: true }
+    ];
+
     requestProgressMessages = [
         "Requesting Server to Generate Private Key",
         "Generating a Certificate Signing Request (CSR)",
@@ -55,7 +75,7 @@ export class AgentsComponent implements OnInit {
         "Certificate Installation Successful!"
     ]
 
-    constructor(private agentsService: AgentsService) {}
+    constructor() {}
 
     ngOnInit(): void {
         this.loadAgents();
@@ -66,6 +86,7 @@ export class AgentsComponent implements OnInit {
 
         this.loading.set(true);
 
+        // Fetch raw objects for card view
         this.agentsService.listAgents(clientId).subscribe({
             next: (data) => {
                 this.agents.set(data);
@@ -73,6 +94,19 @@ export class AgentsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Failed to load agents', err);
+                this.loading.set(false);
+            },
+        });
+
+        // Fetch flattened rows directly for our new table view
+        this.agentsService.listAgentsAsRows(clientId).subscribe({
+            next: (rows) => {
+                this.tableRows.set(rows);
+                console.log("Table Rows:", this.tableRows())
+                this.loading.set(false);
+            },
+            error: (err) => {
+                console.error('Failed to load flat agent rows', err);
                 this.loading.set(false);
             },
         });
