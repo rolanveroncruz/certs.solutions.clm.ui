@@ -19,6 +19,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {RenewalConfigurationService} from '../../services/renewal-configuration-service';
 import {GenericDataTableComponent} from '../../components/generic-data-table-component/generic-data-table-component';
 import {TableColumn} from '../../components/generic-data-table-component/table-interfaces';
+import {MatButton} from '@angular/material/button';
 
 
 @Component({
@@ -27,6 +28,7 @@ import {TableColumn} from '../../components/generic-data-table-component/table-i
     imports: [
         DatePipe,
         GenericDataTableComponent,
+        MatButton,
     ],
     styleUrls: ['./agents-component.scss'],
     standalone: true
@@ -61,7 +63,15 @@ export class AgentsComponent implements OnInit {
         { key: 'certExpiry', label: 'Expiration', cellTemplateKey: 'date', sortable: true },
         { key: 'certIsPresent', label: 'Present', cellTemplateKey: 'check', sortable: true },
         { key: 'certIsManaged', label: 'Managed', cellTemplateKey: 'check', sortable: true },
-        { key: 'renewalConfigurationName', label: 'Renewal Group', sortable: true }
+        { key: 'renewalConfigurationName', label: 'Renewal Group', sortable: true },
+        { key: 'actions', label: 'Actions', cellTemplateKey: 'actionsSmallFonts', sortable:false,
+         actionButton: {
+            label: (row:AgentCertificateRowFlat)=>row.certIsManaged? 'Renew':'Request',
+             icon: (row:AgentCertificateRowFlat)=> row.certIsManaged? 'autorenew': 'add_moderator',
+             color: "primary",
+             onClick: ()=>{}
+
+         }}
     ];
 
     requestProgressMessages = [
@@ -242,4 +252,37 @@ export class AgentsComponent implements OnInit {
             messageIndex: 0,
         });
     }
+
+    // Helper method to look up and reconstruct nested domain trees from primitive IDs
+    private findMatchingDataFromRow(row: AgentCertificateRowFlat): { agent: AgentResponse; service: ServiceData; domain: DomainData } | null { // 🟩
+        const agent = this.agents().find(a => a.id === row.agentId); // 🟩
+        if (!agent) return null; // 🟩
+        // 🟩
+        const service = agent.services.find(s => s.service_id === row.serviceId); // 🟩
+        if (!service) return null; // 🟩
+        // 🟩
+        const domain = service.domains.find(d => d.domain_name === row.domainName); // 🟩
+        if (!domain) return null; // 🟩
+        // 🟩
+        return { agent, service, domain }; // 🟩
+    } // 🟩
+
+    tablePrimaryActionHandler(row: AgentCertificateRowFlat): void { // 🟩
+        const context = this.findMatchingDataFromRow(row); // 🟩
+        if (context) { // 🟩
+            this.requestCertificate(context.agent, context.service, context.domain); // 🟩
+        } // 🟩
+    } // 🟩
+
+    tableSecondaryActionHandler(row: AgentCertificateRowFlat): void { // 🟩
+        const context = this.findMatchingDataFromRow(row); // 🟩
+        if (context) { // 🟩
+            this.openManageConfigDialog(context.agent, context.domain); // 🟩
+        } // 🟩
+    } // 🟩
+
+    // Hides the "Manage" configuration button entirely if a domain doesn't even have a registry certificate footprint
+    shouldHideManageAction(row: AgentCertificateRowFlat): boolean { // 🟩
+        return !row.registryCertificateId; // 🟩
+    } // 🟩
 }

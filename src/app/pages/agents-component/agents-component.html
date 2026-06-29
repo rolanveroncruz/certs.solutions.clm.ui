@@ -16,7 +16,14 @@
                 [data]="tableRows()"
                 [columnDefs]="columnDefs"
                 [showAddButton]="false"
-                [filterSelectKeys]="['serviceName', 'certIssuer']" [pageSize]="10">
+                [filterSelectKeys]="['serviceName', 'certIssuer']" [pageSize]="10"
+                [secondaryActionLabel]="'Manage Renewal Configuration'"
+                [secondaryActionIcon]="'settings'"
+                [hideSecondaryAction]="shouldHideManageAction.bind(this)"
+                (primaryActionClicked)="tablePrimaryActionHandler($event)"
+                (secondaryActionClicked)="tableSecondaryActionHandler($event)"
+
+            >
             </app-generic-data-table> }
         @else { <div class="agent-list">
             @for (agent of agents(); track agent.id) {
