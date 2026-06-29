@@ -140,7 +140,7 @@ export class AgentsComponent implements OnInit {
             data:{
                 agentId: agent.id,
                 domainName: domain.domain_name,
-                mode: 'request',
+                mode: domain.certificate?.is_managed? 'renew': 'request',
                 registryCertId: domain.certificate?.registry_certificate_id ?? undefined
             }
         });

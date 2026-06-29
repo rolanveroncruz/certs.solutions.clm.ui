@@ -7,6 +7,7 @@ export interface AcquireCertRequest {
     province?: string;
     locality?: string;
     email_address?: string;
+    sans?: string[];
 }
 
 export interface AcquireCertResponse {

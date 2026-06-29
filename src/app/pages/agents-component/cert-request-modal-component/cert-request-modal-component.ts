@@ -9,8 +9,7 @@ import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/
 export interface CertRequestModalData {
     agentId: string;
     domainName: string;
-
-    mode?: 'request' | 'manageConfig';
+    mode?: 'request' | 'manageConfig' | 'renew';
     currentConfigId?:string;
     registryCertId?:string;
 }
@@ -52,6 +51,7 @@ export class CertRequestModalComponent implements OnInit {
         country: ['', [Validators.maxLength(2), Validators.pattern(/^[A-Z]{2}$/i)]],
         province: [''],
         locality: [''],
+        sans: [''],
         email_address: ['', [Validators.email]]
     });
 
@@ -81,6 +81,13 @@ export class CertRequestModalComponent implements OnInit {
         if (this.certForm.valid) {
             const formValue = this.certForm.value;
 
+            const parsedSansArray: string[] = formValue.sans
+                ? String(formValue.sans)
+                    .split(',')
+                    .map((domain:string)=>domain.trim())
+                    .filter(( domain:string)=>domain.length>0)
+                : [];
+
             const acquireRequest: AcquireCertRequest = {
                 agent_id: this.data.agentId,
                 domain_name: formValue.domain_name ?? '',
@@ -88,7 +95,8 @@ export class CertRequestModalComponent implements OnInit {
                 country: formValue.country ?? undefined,
                 province: formValue.province ?? undefined,
                 locality: formValue.locality ?? undefined,
-                email_address: formValue.email_address ?? undefined
+                email_address: formValue.email_address ?? undefined,
+                sans: parsedSansArray,
             };
 
             this.dialogRef.close({

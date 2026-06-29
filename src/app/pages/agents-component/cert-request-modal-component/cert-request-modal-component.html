@@ -1,5 +1,6 @@
 <h2 mat-dialog-title>
-    {{ data.mode === 'manageConfig' ? 'Manage Renewal Configuration' : 'Request New Certificate' }}
+    {{ data.mode === 'manageConfig' ? 'Manage Renewal Configuration' :
+        data.mode==='request'?'Request New Certificate' : 'Renew Certificate' }}
     <div class="modal-context-subtitle">
         <div class="subtitle-item">
             <span class="label">Target Agent:</span>
@@ -32,6 +33,18 @@
                         @if (certForm.get('domain_name')?.invalid && certForm.get('domain_name')?.touched) {
                             <small class="error">Domain name is required.</small>
                         }
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sans">Subject Alternative Names (SANs)</label>
+                        <input
+                            id="sans"
+                            type="text"
+                            formControlName="sans"
+                            placeholder="e.g. web.local, internal.local, *.dev.local (Comma-separated)">
+                        <small class="muted" style="display: block; margin-top: 4px; font-size: 0.8rem; color: #666;">
+                            Provide multiple alternative domains separated by commas.
+                        </small>
                     </div>
 
                     <div class="form-group">
@@ -76,7 +89,8 @@
             type="submit"
             class="btn-submit"
             [disabled]="(data.mode !== 'manageConfig' && certForm.invalid) || !selectedConfigId || isConfigCreating">
-            {{ data.mode === 'manageConfig' ? 'Use Selected Configuration' : 'Initiate Certificate Request' }}
+            {{ data.mode === 'manageConfig' ? 'Use Selected Configuration' :
+                data.mode==='request'? 'Initiate Certificate Request': 'Initiate Renewal'}}
         </button>
     </mat-dialog-actions>
 
