@@ -126,6 +126,7 @@ export class AgentsComponent implements OnInit {
         this.expandedAgentId = this.expandedAgentId === id ? null : id;
     }
 
+    // requestCertificate is called to: Enroll a new certificate or renew an old one.
     requestCertificate(
         agent: AgentResponse,
         _: ServiceData,
@@ -147,7 +148,9 @@ export class AgentsComponent implements OnInit {
         dialogRef.afterClosed().subscribe( (payload ) =>{
             if (payload && payload.acquireRequest){
                 this.certsService.acquireCert(payload.acquireRequest).subscribe({
+
                     next:()=>{
+                        // We have made a successful certificate request, but actual enrollment is still pending.
                         this.startRequestProgressBanner();
                         if (payload.configId && payload.registryCertId){
                             this.renewalConfigService.patchCertificate(payload.registryCertId, payload.configId).subscribe({

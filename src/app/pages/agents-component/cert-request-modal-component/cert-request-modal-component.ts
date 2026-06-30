@@ -97,6 +97,7 @@ export class CertRequestModalComponent implements OnInit {
                 locality: formValue.locality ?? undefined,
                 email_address: formValue.email_address ?? undefined,
                 sans: parsedSansArray,
+                renewal_configuration_id: this.selectedConfigId,
             };
 
             this.dialogRef.close({
