@@ -101,6 +101,7 @@
   flex: 1 1 auto;
   overflow: auto;
   padding: 16px;
+  scrollbar-gutter: stable;
 }
 
 @media (max-width: 600px) {

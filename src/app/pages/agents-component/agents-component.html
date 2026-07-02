@@ -1,154 +1,32 @@
-<div class="agents-container" [class.full-width]="viewMode() === 'table'">
-    <div class="view-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;"> <h2>Network Agents</h2> <div class="toggle-buttons"> <button mat-stroked-button [disabled]="viewMode() === 'cards'" (click)="viewMode.set('cards')" style="margin-right: 0.5rem;">Card View</button> <button mat-stroked-button [disabled]="viewMode() === 'table'" (click)="viewMode.set('table')">Table View</button> </div> </div> @if (requestProgress().visible) {
-    <div class="request-progress-banner">
-        <div class="progress-message">
-            {{ requestProgressMessages[requestProgress().messageIndex] }}
-        </div>
-
-        <div class="progress-spinner" aria-label="Processing"></div>
+<div class="agents-container">
+    <div class="view-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2>Network Agents</h2>
     </div>
-}
+
+    @if (requestProgress().visible) {
+        <div class="request-progress-banner">
+            <div class="progress-message">
+                {{ requestProgressMessages[requestProgress().messageIndex] }}
+            </div>
+            <div class="progress-spinner" aria-label="Processing"></div>
+        </div>
+    }
+
     @if (loading()) {
         <div class="loader">Scanning network...</div>
     } @else {
-        @if (viewMode() === 'table') {
-            <app-generic-data-table
-                [data]="tableRows()"
-                [columnDefs]="columnDefs"
-                [showAddButton]="false"
-                [filterSelectKeys]="['serviceName', 'certIssuer']" [pageSize]="10"
-                [secondaryActionLabel]="'Manage Renewal Configuration'"
-                [secondaryActionIcon]="'settings'"
-                [hideSecondaryAction]="shouldHideManageAction.bind(this)"
-                (primaryActionClicked)="tablePrimaryActionHandler($event)"
-                (secondaryActionClicked)="tableSecondaryActionHandler($event)"
-
-            >
-            </app-generic-data-table> }
-        @else { <div class="agent-list">
-            @for (agent of agents(); track agent.id) {
-                <div class="agent-card" [class.expanded]="expandedAgentId === agent.id">
-                    <div class="agent-header" (click)="toggleAgent(agent.id)">
-                        <div
-                            class="status-indicator"
-                            [class.online]="agent.is_online">
-                        </div>
-
-                        <div class="info">
-                            <span class="hostname">{{ agent.hostname }}</span>
-                            <span class="ip-address"> {{ agent.agent_identity }} </span>
-                        </div>
-
-                        <div class="chevron">
-                            {{ expandedAgentId === agent.id ? '▲' : '▼' }}
-                        </div>
-                    </div>
-
-                    @if (expandedAgentId === agent.id) {
-                        <div class="agent-details">
-                            <div class="system-meta">
-                                    <span>
-                                        <strong>Agent ID:</strong> {{ agent.id }}
-                                    </span>
-
-                                <span>
-                                        <strong>Status:</strong>
-                                    {{ agent.is_online ? 'Online' : 'Offline' }}
-                                    </span>
-                            </div>
-
-                            <section class="detail-section">
-                                <h4>Services</h4>
-
-                                @for (service of agent.services; track service.service_id) {
-                                    <div class="service-block">
-                                        <div class="service-title">
-                                            <strong>{{ service.name }}</strong>
-                                            <span class="muted">Service ID: {{ service.service_id }}</span>
-                                        </div>
-
-                                        @for (domain of service.domains; track domain.domain_name) {
-                                            <div class="item-row">
-                                                <div class="service-info">
-                                                    <strong>{{ domain.domain_name }}</strong>
-                                                    <span class="port-list">
-                                                            Last seen: {{ domain.last_seen | date:'medium' }}
-                                                        </span>
-
-                                                    @if (domain.certificate) {
-                                                        <span class="cert-tag">
-                                                                Signed by:
-                                                            {{ domain.certificate.issuer }}
-                                                            — expires
-                                                            {{ domain.certificate.expiry | date:'mediumDate' }} </span>
-
-                                                    } @else {
-                                                    }
-                                                    <div class="cert-checks">
-                                                            <span class="cert-check"
-                                                                  [class.enabled]="domain.certificate?.is_present">
-                                                                ✓ Is Present
-                                                            </span>
-
-                                                        <span
-                                                            class="cert-check"
-                                                            [class.enabled]="domain.certificate?.is_managed">
-                                                                ✓ Is Managed
-                                                            </span>
-
-                                                        <span
-                                                            class="cert-check"
-                                                            [class.enabled]="domain.certificate?.is_publicly_seen">
-                                                                ✓ Is Publicly Seen
-                                                            </span>
-                                                    </div>
-                                                    @if (domain.certificate) {
-                                                        <div class="renewal-config-info">
-                                                            <strong>Renewal Configuration:</strong>
-                                                            {{ domain.certificate.renewal_configuration_name || 'Not Managed' }}
-                                                            <span>
-                                                                    Renews days before expiry {{domain.certificate.renews_days_before_expiry}}
-                                                                </span>
-                                                            <span>
-                                                                    <strong> Renews on</strong>
-                                                                {{domain.certificate.scheduled_renewal_date | date:'mediumDate'}}
-                                                                </span>
-
-                                                            <button
-                                                                class="btn-manage"
-                                                                (click)="openManageConfigDialog(agent, domain)"
-                                                            >
-                                                                Manage
-                                                            </button>
-                                                        </div>
-                                                    }
-                                                </div>
-
-                                                <button
-                                                    class="btn-request"
-                                                    (click)="requestCertificate(agent, service, domain)">
-                                                    @if (domain.certificate?.is_managed){
-                                                        <span>Renew Certificate</span>
-                                                    } @else {
-                                                        <span>Request Certificate</span>
-                                                    }
-                                                </button>
-                                            </div>
-                                        } @empty {
-                                            <p class="muted">No domains found for this service.</p>
-                                        }
-                                    </div>
-                                } @empty {
-                                    <p class="muted">No services discovered on this agent.</p>
-                                }
-                            </section>
-
-                        </div>
-                    }
-                </div>
-            } @empty {
-                <div class="empty-state">No agents reported.</div>
-            }
-        </div>
-        } }
+        <app-generic-data-table
+            [data]="tableRows()"
+            [columnDefs]="columnDefs"
+            [showAddButton]="false"
+            [filterSelectKeys]="['serviceName', 'certIssuer']"
+            [pageSize]="10"
+            [secondaryActionLabel]="'Manage Renewal Configuration'"
+            [secondaryActionIcon]="'settings'"
+            [hideSecondaryAction]="shouldHideManageAction.bind(this)"
+            (primaryActionClicked)="tablePrimaryActionHandler($event)"
+            (secondaryActionClicked)="tableSecondaryActionHandler($event)"
+        >
+        </app-generic-data-table>
+    }
 </div>

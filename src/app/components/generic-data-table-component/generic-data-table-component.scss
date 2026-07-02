@@ -1,5 +1,10 @@
 /* generic-data-table.scss */
 
+:host {
+    display: block;
+    min-width: 0;
+}
+
 // 1. Toolbar Layout
 .toolbar {
     display: flex;

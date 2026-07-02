@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { AgentsService } from '../../services/agents-service';
 import {
     AgentResponse,
@@ -19,16 +18,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {RenewalConfigurationService} from '../../services/renewal-configuration-service';
 import {GenericDataTableComponent} from '../../components/generic-data-table-component/generic-data-table-component';
 import {TableColumn} from '../../components/generic-data-table-component/table-interfaces';
-import {MatButton} from '@angular/material/button';
 
 
 @Component({
     selector: 'app-agents',
     templateUrl: './agents-component.html',
     imports: [
-        DatePipe,
         GenericDataTableComponent,
-        MatButton,
     ],
     styleUrls: ['./agents-component.scss'],
     standalone: true
@@ -39,9 +35,6 @@ export class AgentsComponent implements OnInit {
     private readonly renewalConfigService = inject(RenewalConfigurationService);
     private readonly dialog=inject(MatDialog);
     private readonly agentsService = inject(AgentsService);
-
-    expandedAgentId: string | null = null;
-    viewMode = signal<'cards' | 'table'>('table');
 
     loading = signal(false);
     agents = signal<AgentResponse[]>([]);
@@ -55,6 +48,14 @@ export class AgentsComponent implements OnInit {
     });
 // Define table columns without action buttons for this milestone
     columnDefs: TableColumn<AgentCertificateRowFlat>[] = [
+        { key: 'actions', label: 'Actions', cellTemplateKey: 'actionsSmallFonts', sortable:false,
+            actionButton: {
+                label: (row:AgentCertificateRowFlat)=>row.certIsManaged? 'Renew':'Request',
+                icon: (row:AgentCertificateRowFlat)=> row.certIsManaged? 'autorenew': 'add_moderator',
+                color: "primary",
+                onClick: ()=>{}
+
+            }},
         { key: 'hostname', label: 'Host / Agent', sortable: true },
         { key: 'isOnline', label: 'Online', cellTemplateKey: 'check', sortable: true },
         { key: 'serviceName', label: 'Service', sortable: true },
@@ -64,14 +65,6 @@ export class AgentsComponent implements OnInit {
         { key: 'certIsPresent', label: 'Present', cellTemplateKey: 'check', sortable: true },
         { key: 'certIsManaged', label: 'Managed', cellTemplateKey: 'check', sortable: true },
         { key: 'renewalConfigurationName', label: 'Renewal Group', sortable: true },
-        { key: 'actions', label: 'Actions', cellTemplateKey: 'actionsSmallFonts', sortable:false,
-         actionButton: {
-            label: (row:AgentCertificateRowFlat)=>row.certIsManaged? 'Renew':'Request',
-             icon: (row:AgentCertificateRowFlat)=> row.certIsManaged? 'autorenew': 'add_moderator',
-             color: "primary",
-             onClick: ()=>{}
-
-         }}
     ];
 
     requestProgressMessages = [
@@ -122,9 +115,6 @@ export class AgentsComponent implements OnInit {
         });
     }
 
-    toggleAgent(id: string): void {
-        this.expandedAgentId = this.expandedAgentId === id ? null : id;
-    }
 
     // requestCertificate is called to: Enroll a new certificate or renew an old one.
     requestCertificate(
