@@ -48,14 +48,23 @@ export class AgentsComponent implements OnInit {
     });
 // Define table columns without action buttons for this milestone
     columnDefs: TableColumn<AgentCertificateRowFlat>[] = [
-        { key: 'actions', label: 'Actions', cellTemplateKey: 'actionsSmallFonts', sortable:false,
-            actionButton: {
-                label: (row:AgentCertificateRowFlat)=>row.certIsManaged? 'Renew':'Request',
-                icon: (row:AgentCertificateRowFlat)=> row.certIsManaged? 'autorenew': 'add_moderator',
-                color: "primary",
-                onClick: ()=>{}
-
-            }},
+        { key: 'actions', label: 'Actions', cellTemplateKey: 'actionsSmallFonts', sortable: false,
+            actionButtons: [
+                {
+                    id: 'request',
+                    label: (row: AgentCertificateRowFlat) => row.certIsManaged ? 'Renew' : 'Request',
+                    icon: (row: AgentCertificateRowFlat) => row.certIsManaged ? 'autorenew' : 'add_moderator',
+                    color: 'primary',
+                    variant: 'stroked',
+                },
+                {
+                    id: 'manage',
+                    label: 'Manage Renewal Configuration',
+                    icon: 'settings',
+                    variant: 'text',
+                    hidden: (row: AgentCertificateRowFlat) => !row.registryCertificateId,
+                },
+            ]},
         { key: 'hostname', label: 'Host / Agent', sortable: true },
         { key: 'isOnline', label: 'Online', cellTemplateKey: 'check', sortable: true },
         { key: 'serviceName', label: 'Service', sortable: true },
@@ -260,22 +269,17 @@ export class AgentsComponent implements OnInit {
         return { agent, service, domain }; // 🟩
     } // 🟩
 
-    tablePrimaryActionHandler(row: AgentCertificateRowFlat): void { // 🟩
-        const context = this.findMatchingDataFromRow(row); // 🟩
-        if (context) { // 🟩
-            this.requestCertificate(context.agent, context.service, context.domain); // 🟩
-        } // 🟩
-    } // 🟩
+    tableActionHandler(event: { row: AgentCertificateRowFlat; actionId: string }): void {
+        const context = this.findMatchingDataFromRow(event.row);
+        if (!context) return;
 
-    tableSecondaryActionHandler(row: AgentCertificateRowFlat): void { // 🟩
-        const context = this.findMatchingDataFromRow(row); // 🟩
-        if (context) { // 🟩
-            this.openManageConfigDialog(context.agent, context.domain); // 🟩
-        } // 🟩
-    } // 🟩
-
-    // Hides the "Manage" configuration button entirely if a domain doesn't even have a registry certificate footprint
-    shouldHideManageAction(row: AgentCertificateRowFlat): boolean { // 🟩
-        return !row.registryCertificateId; // 🟩
-    } // 🟩
+        switch (event.actionId) {
+            case 'request':
+                this.requestCertificate(context.agent, context.service, context.domain);
+                break;
+            case 'manage':
+                this.openManageConfigDialog(context.agent, context.domain);
+                break;
+        }
+    }
 }

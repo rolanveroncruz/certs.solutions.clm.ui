@@ -21,11 +21,7 @@
             [showAddButton]="false"
             [filterSelectKeys]="['serviceName', 'certIssuer']"
             [pageSize]="10"
-            [secondaryActionLabel]="'Manage Renewal Configuration'"
-            [secondaryActionIcon]="'settings'"
-            [hideSecondaryAction]="shouldHideManageAction.bind(this)"
-            (primaryActionClicked)="tablePrimaryActionHandler($event)"
-            (secondaryActionClicked)="tableSecondaryActionHandler($event)"
+            (actionClicked)="tableActionHandler($event)"
         >
         </app-generic-data-table>
     }

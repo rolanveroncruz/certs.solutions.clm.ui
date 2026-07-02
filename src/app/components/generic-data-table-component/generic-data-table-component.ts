@@ -12,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TableColumn,   } from './table-interfaces';
+import { TableColumn, TableActionButton } from './table-interfaces';
 import {MatChip, MatChipSet} from '@angular/material/chips'; // Import from where you defined it
 
 @Component({
@@ -44,17 +44,8 @@ export class GenericDataTableComponent<T extends object> implements AfterViewIni
 
   @Output() rowClicked = new EventEmitter<T>();
   @Output() addClicked = new EventEmitter<void>();
-  @Output() primaryActionClicked = new EventEmitter<T>();
-  @Output() secondaryActionClicked = new EventEmitter<T>();
-  @Input() secondaryActionLabel = 'Open';
-  @Input() secondaryActionIcon = 'open_in_new';
-  @Input() hideSecondaryAction?: (row: T)=> boolean;
-  @Input() secondaryActionDisabled: ((row: T) => boolean) | null = null;
+  @Output() actionClicked = new EventEmitter<{ row: T; actionId: string }>();
 
-
-  isSecondaryActionHidden(row: T): boolean {
-      return !!this.hideSecondaryAction?.(row);
-  }
   // New Configurable paginator inputs
   @Input() pageSize= 15;
   @Input() pageSizeOptions: number[] = [5, 10, 25, 50, 100];
@@ -93,38 +84,27 @@ export class GenericDataTableComponent<T extends object> implements AfterViewIni
   onAddClicked() {
     this.addClicked.emit();
   }
-  onPrimaryActionClicked(event: MouseEvent, row: T) {
+  onActionClicked(event: MouseEvent, row: T, actionId: string) {
       event.stopPropagation();
-      this.primaryActionClicked.emit(row);
+      this.actionClicked.emit({ row, actionId });
   }
-  onSecondaryActionClicked(event: MouseEvent, row: T) {
-      event.stopPropagation();
-      this.secondaryActionClicked.emit(row);
-  }
-  isPrimaryActionHidden(col:TableColumn<T>, row:T):boolean{
-      return !!col.actionButton?.hidden?.(row);
-  }
-  isPrimaryActionDisabled(col:TableColumn<T>, row:T):boolean{
-      return !!col.actionButton?.disabled?.(row);
-  }
-    getPrimaryActionLabel(col: TableColumn<T>, row: T): string {
-      const label = col.actionButton?.label;
-      return typeof label === 'function' ? label(row) : (label ?? '');
-    }
 
-    getPrimaryActionIcon(col: TableColumn<T>, row: T): string {
-      const icon = col.actionButton?.icon;
+  isActionHidden(btn: TableActionButton<T>, row: T): boolean {
+      return !!btn.hidden?.(row);
+  }
+  isActionDisabled(btn: TableActionButton<T>, row: T): boolean {
+      return !!btn.disabled?.(row);
+  }
+  getActionLabel(btn: TableActionButton<T>, row: T): string {
+      return typeof btn.label === 'function' ? btn.label(row) : btn.label;
+  }
+  getActionIcon(btn: TableActionButton<T>, row: T): string {
+      const icon = btn.icon;
       return typeof icon === 'function' ? icon(row) : (icon ?? '');
-    }
-
-    getPrimaryActionHiddenText(col: TableColumn<T>, row: T): string {
-        const hiddenText = col.actionButton?.hiddenText;
-        return typeof hiddenText === 'function' ? hiddenText(row) : (hiddenText ?? '');
-    }
-
-
-  isSecondaryActionDisabled( row:T):boolean{
-      return !!this.secondaryActionDisabled?.(row);
+  }
+  getActionHiddenText(btn: TableActionButton<T>, row: T): string {
+      const hiddenText = btn.hiddenText;
+      return typeof hiddenText === 'function' ? hiddenText(row) : (hiddenText ?? '');
   }
 
 
@@ -295,4 +275,3 @@ export class GenericDataTableComponent<T extends object> implements AfterViewIni
     return 'tag-other';
   }
 }
-

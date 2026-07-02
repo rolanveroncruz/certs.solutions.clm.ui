@@ -6,7 +6,7 @@ export interface TableColumn<T extends object = any> {
     minWidthPx?: number; // minimum width in pixels
     maxWidthPx?: number; // maximum width in pixels
     cellTemplateKey?: TableCellTemplateKey; // e.g. 'chips', 'date', 'money', etc.
-    actionButton?: TableActionButton<T>;
+    actionButtons?: TableActionButton<T>[];
 }
 
 export interface FilterConfig {
@@ -25,10 +25,11 @@ export type TableCellTemplateKey =
     | 'actionsSmallFonts';
 
 export interface TableActionButton<T = any> {
-    label: string | ((row:T)=>string);
-    icon?: string| ((row:T)=>string);
-    onClick: (row: T) => void;
+    id: string;
+    label: string | ((row: T) => string);
+    icon?: string | ((row: T) => string);
     color?: 'primary' | 'accent' | 'warn';
+    variant?: 'stroked' | 'flat' | 'text';
     disabled?: (row: T) => boolean;
     hidden?: (row: T) => boolean;
     hiddenText?: string | ((row: T) => string);

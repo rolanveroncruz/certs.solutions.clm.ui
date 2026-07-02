@@ -171,70 +171,108 @@
 </ng-template>
 <ng-template #actionsCell let-row let-col="col">
     <div class="action-buttons" (click)="$event.stopPropagation()">
-        @if (col.actionButton && !isPrimaryActionHidden(col, row)) {
-            <button
-                mat-stroked-button
-                type="button"
-                [color]="col.actionButton.color ?? 'primary'"
-                [disabled]="isPrimaryActionDisabled(col, row)"
-                (click)="onPrimaryActionClicked($event, row)">
-                @if (getPrimaryActionIcon(col, row)) {
-                    <mat-icon>{{ getPrimaryActionIcon(col, row) }}</mat-icon>
+        @for (btn of col.actionButtons; track btn.id) {
+            @if (!isActionHidden(btn, row)) {
+                @switch (btn.variant ?? 'stroked') {
+                    @case ('stroked') {
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            [color]="btn.color ?? 'primary'"
+                            [disabled]="isActionDisabled(btn, row)"
+                            (click)="onActionClicked($event, row, btn.id)">
+                            @if (getActionIcon(btn, row)) {
+                                <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
+                            }
+                            {{ getActionLabel(btn, row) }}
+                        </button>
+                    }
+                    @case ('flat') {
+                        <button
+                            mat-flat-button
+                            type="button"
+                            [color]="btn.color ?? 'primary'"
+                            [disabled]="isActionDisabled(btn, row)"
+                            (click)="onActionClicked($event, row, btn.id)">
+                            @if (getActionIcon(btn, row)) {
+                                <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
+                            }
+                            {{ getActionLabel(btn, row) }}
+                        </button>
+                    }
+                    @case ('text') {
+                        <button
+                            mat-button
+                            type="button"
+                            [color]="btn.color ?? 'primary'"
+                            [disabled]="isActionDisabled(btn, row)"
+                            (click)="onActionClicked($event, row, btn.id)">
+                            @if (getActionIcon(btn, row)) {
+                                <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
+                            }
+                            {{ getActionLabel(btn, row) }}
+                        </button>
+                    }
                 }
-                {{ getPrimaryActionLabel(col, row) }}
-            </button>
-        } @else if (col.actionButton && getPrimaryActionHiddenText(col, row)) {
-        <span class="action-status-text">
-                {{getPrimaryActionHiddenText(col, row)}}
-            </span>
-    }
-
-        @if (!isSecondaryActionHidden(row)) {
-            <button
-                mat-button
-                type="button"
-                [disabled]="isSecondaryActionDisabled(row)"
-                (click)="onSecondaryActionClicked($event, row)">
-                @if (secondaryActionIcon) {
-                    <mat-icon>{{ secondaryActionIcon }}</mat-icon>
-                }
-                {{ secondaryActionLabel }}
-            </button>
+            } @else if (getActionHiddenText(btn, row)) {
+                <span class="action-status-text">
+                    {{ getActionHiddenText(btn, row) }}
+                </span>
+            }
         }
     </div>
 </ng-template>
 
 <ng-template #actionsCellSmallFonts let-row let-col="col">
     <div class="action-buttons action-buttons-small" (click)="$event.stopPropagation()">
-        @if (col.actionButton && !isPrimaryActionHidden(col, row)) {
-            <button
-                mat-stroked-button
-                type="button"
-                [color]="col.actionButton.color ?? 'primary'"
-                [disabled]="isPrimaryActionDisabled(col, row)"
-                (click)="onPrimaryActionClicked($event, row)">
-                @if (getPrimaryActionIcon(col, row)) {
-                    <mat-icon>{{ getPrimaryActionIcon(col, row) }}</mat-icon>
+        @for (btn of col.actionButtons; track btn.id) {
+            @if (!isActionHidden(btn, row)) {
+                @switch (btn.variant ?? 'stroked') {
+                    @case ('stroked') {
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            [color]="btn.color ?? 'primary'"
+                            [disabled]="isActionDisabled(btn, row)"
+                            (click)="onActionClicked($event, row, btn.id)">
+                            @if (getActionIcon(btn, row)) {
+                                <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
+                            }
+                            {{ getActionLabel(btn, row) }}
+                        </button>
+                    }
+                    @case ('flat') {
+                        <button
+                            mat-flat-button
+                            type="button"
+                            [color]="btn.color ?? 'primary'"
+                            [disabled]="isActionDisabled(btn, row)"
+                            (click)="onActionClicked($event, row, btn.id)">
+                            @if (getActionIcon(btn, row)) {
+                                <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
+                            }
+                            {{ getActionLabel(btn, row) }}
+                        </button>
+                    }
+                    @case ('text') {
+                        <button
+                            mat-button
+                            type="button"
+                            [color]="btn.color ?? 'primary'"
+                            [disabled]="isActionDisabled(btn, row)"
+                            (click)="onActionClicked($event, row, btn.id)">
+                            @if (getActionIcon(btn, row)) {
+                                <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
+                            }
+                            {{ getActionLabel(btn, row) }}
+                        </button>
+                    }
                 }
-                {{ getPrimaryActionLabel(col, row) }}
-            </button>
-        }@else if (col.actionButton && getPrimaryActionHiddenText(col, row)) {
-            <span class="action-status-text">
-                {{getPrimaryActionHiddenText(col, row)}}
-            </span>
-        }
-
-        @if (!isSecondaryActionHidden(row)) {
-            <button
-                mat-button
-                type="button"
-                [disabled]="isSecondaryActionDisabled(row)"
-                (click)="onSecondaryActionClicked($event, row)">
-                @if (secondaryActionIcon) {
-                    <mat-icon>{{ secondaryActionIcon }}</mat-icon>
-                }
-                {{ secondaryActionLabel }}
-            </button>
+            } @else if (getActionHiddenText(btn, row)) {
+                <span class="action-status-text">
+                    {{ getActionHiddenText(btn, row) }}
+                </span>
+            }
         }
     </div>
 </ng-template>
