@@ -37,13 +37,15 @@
 
                     <div class="form-group">
                         <label for="sans">Subject Alternative Names (SANs)</label>
-                        <input
+                        <textarea
                             id="sans"
-                            type="text"
+                            (input)=" autoResize( $event)"
                             formControlName="sans"
-                            placeholder="e.g. web.local, internal.local, *.dev.local (Comma-separated)">
+                            placeholder="e.g. web.local&#10;internal.local&#10;*.dev.local&#10;(or separated by commas)"
+                        >
+                        </textarea>
                         <small class="muted" style="display: block; margin-top: 4px; font-size: 0.8rem; color: #666;">
-                            Provide multiple alternative domains separated by commas.
+                            Provide alternative domains separated by commas or newlines.
                         </small>
                     </div>
 
@@ -80,7 +82,7 @@
                 </div>
             </mat-tab>
 
-        </mat-tab-group>
+         </mat-tab-group>
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">

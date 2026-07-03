@@ -166,3 +166,30 @@ mat-dialog-content {
         }
     }
 }
+/* Add this to cert-request-modal-component.scss */
+
+textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #cbd5e1; // Match your normal input border color
+    border-radius: 4px;
+    resize: vertical;
+    font-family: inherit;
+    box-sizing: border-box;
+
+    /* ✅ Force the border to stay calm when valid or touched */
+    &.ng-valid.ng-touched {
+        border: 1px solid #cbd5e1;
+    }
+
+    /* ✅ Force the border to keep a neutral color even if ng-invalid */
+    &.ng-invalid.ng-touched {
+        border: 1px solid #cbd5e1;
+    }
+
+    &:focus {
+        outline: none;
+        border-color: #2563eb; /* Your blue focus color */
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+}

@@ -62,6 +62,11 @@ export class CertRequestModalComponent implements OnInit {
             domain_name: this.data.domainName,
         });
 
+        setTimeout(()=>{
+           const textarea = document.getElementById('sans') as HTMLTextAreaElement;
+           if (textarea) this.autoResize({target:textarea } as any);
+        });
+
         if (this.data.mode === 'manageConfig'){
             this.certForm.disable();
         }
@@ -83,7 +88,7 @@ export class CertRequestModalComponent implements OnInit {
 
             const parsedSansArray: string[] = formValue.sans
                 ? String(formValue.sans)
-                    .split(',')
+                    .split(/[,\n;]+/)
                     .map((domain:string)=>domain.trim())
                     .filter(( domain:string)=>domain.length>0)
                 : [];
@@ -113,6 +118,17 @@ export class CertRequestModalComponent implements OnInit {
     }
     onConfigSelect(configId:string): void{
         this.selectedConfigId = configId;
+    }
+    // cert-request-modal-component.ts
+
+    autoResize(event: Event): void {
+        const textarea = event.target as HTMLTextAreaElement;
+
+       // 1. Reset height to 'auto' so it shrinks when text is deleted
+        textarea.style.height = 'auto';
+
+       // 2. Set the height to the scrollHeight (total content height)
+        textarea.style.height = textarea.scrollHeight + 'px';
     }
 }
 
