@@ -35,7 +35,6 @@ export class GenericDataTableComponent<T extends object> implements AfterViewIni
   @ViewChild('checkCell', { static: true }) checkCell!: TemplateRef<any>;
   @ViewChild('checkOnlyCell', { static: true }) checkOnly!: TemplateRef<any>;
   @ViewChild('actionsCell', { static: true }) actionsCell!: TemplateRef<any>;
-    @ViewChild('actionsCellSmallFonts', { static: true }) actionsCellSmallFonts!: TemplateRef<any>;
   // --- INPUTS ---
   @Input({ required: true }) data: T[] = [];
   @Input({ required: true }) columnDefs: TableColumn<T>[] = [];
@@ -84,9 +83,14 @@ export class GenericDataTableComponent<T extends object> implements AfterViewIni
   onAddClicked() {
     this.addClicked.emit();
   }
-  onActionClicked(event: MouseEvent, row: T, actionId: string) {
+  onActionClicked(event: MouseEvent, row: T, btn: TableActionButton<T> ) {
       event.stopPropagation();
-      this.actionClicked.emit({ row, actionId });
+      if(btn.onClick){
+          btn.onClick(row);
+      } else{
+          this.actionClicked.emit({ row, actionId: btn.id});
+
+      }
   }
 
   isActionHidden(btn: TableActionButton<T>, row: T): boolean {
@@ -96,6 +100,7 @@ export class GenericDataTableComponent<T extends object> implements AfterViewIni
       return !!btn.disabled?.(row);
   }
   getActionLabel(btn: TableActionButton<T>, row: T): string {
+      if (!btn.label) return '';
       return typeof btn.label === 'function' ? btn.label(row) : btn.label;
   }
   getActionIcon(btn: TableActionButton<T>, row: T): string {
@@ -261,7 +266,7 @@ export class GenericDataTableComponent<T extends object> implements AfterViewIni
       case 'checkonly': return this.checkOnly;
       case 'default': return this.defaultCell;
       case 'actions': return this.actionsCell;
-      case 'actionsSmallFonts': return this.actionsCellSmallFonts;
+      case 'actionsSmallFonts': return this.actionsCell;
 
     }
     return this.defaultCell;

@@ -1,3 +1,5 @@
+import {TemplateRef} from '@angular/core';
+
 export interface TableColumn<T extends object = any> {
     key: string;       // The property name in your JSON (e.g., 'email')
     label: string;     // The text to display in the header (e.g., 'Email Address')
@@ -26,11 +28,13 @@ export type TableCellTemplateKey =
 
 export interface TableActionButton<T = any> {
     id: string;
-    label: string | ((row: T) => string);
+    label?: string | ((row: T) => string);
     icon?: string | ((row: T) => string);
     color?: 'primary' | 'accent' | 'warn';
     variant?: 'stroked' | 'flat' | 'text';
     disabled?: (row: T) => boolean;
     hidden?: (row: T) => boolean;
     hiddenText?: string | ((row: T) => string);
+    customTemplate? : TemplateRef<any>;
+    onClick?: (row: T) => void;
 }

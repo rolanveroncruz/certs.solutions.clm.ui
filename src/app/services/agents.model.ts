@@ -49,7 +49,7 @@ export interface AgentCertificateRowFlat {
 
     // --- Certificate Deployment Fields (Nullable if no cert exists) ---
     certPath: string | null;
-    certIssuer: string | null;
+    Issuer: string | null;
     certExpiry: string | null; // ISO Date String
     certIsPresent: boolean;
     certIsManaged: boolean;

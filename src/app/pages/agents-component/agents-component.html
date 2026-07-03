@@ -19,10 +19,43 @@
             [data]="tableRows()"
             [columnDefs]="columnDefs"
             [showAddButton]="false"
-            [filterSelectKeys]="['serviceName', 'certIssuer']"
+            [filterSelectKeys]="['serviceName', 'Issuer']"
             [pageSize]="10"
             (actionClicked)="tableActionHandler($event)"
         >
         </app-generic-data-table>
     }
 </div>
+<ng-template #RenewBtn let-row let-btn="btn">
+    <button type="button" class="custom-image-btn" (click)="btn.onClick(row); $event.stopPropagation();">
+        <img ngSrc='/renew.png'
+             width="36"
+             height="29"
+
+             alt="Action Icon"
+             class="btn-image" />
+        <span class="btn-label">Renew</span>
+    </button>
+</ng-template>
+
+<ng-template #RequestBtn let-row let-btn="btn">
+    <button type="button" class="custom-image-btn" (click)="btn.onClick(row); $event.stopPropagation();">
+        <img ngSrc='/request.png'
+             width="37"
+             height="29"
+             alt="Action Icon"
+             class="btn-image" />
+        <span class="btn-label">Request</span>
+    </button>
+</ng-template>
+
+<ng-template #ManageBtn let-row let-btn="btn">
+    <button type="button" class="custom-image-btn" (click)="btn.onClick(row); $event.stopPropagation();">
+        <img ngSrc='/manage.png'
+             width="36"
+             height="31"
+             alt="Action Icon"
+             class="btn-image" />
+        <span class="btn-label">Manage</span>
+    </button>
+</ng-template>

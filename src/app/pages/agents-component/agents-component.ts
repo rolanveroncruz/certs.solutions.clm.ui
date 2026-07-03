@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {Component, inject, OnInit, signal, TemplateRef, ViewChild} from '@angular/core';
 import { AgentsService } from '../../services/agents-service';
 import {
     AgentResponse,
@@ -18,6 +18,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {RenewalConfigurationService} from '../../services/renewal-configuration-service';
 import {GenericDataTableComponent} from '../../components/generic-data-table-component/generic-data-table-component';
 import {TableColumn} from '../../components/generic-data-table-component/table-interfaces';
+import {NgOptimizedImage} from '@angular/common';
 
 
 @Component({
@@ -25,6 +26,7 @@ import {TableColumn} from '../../components/generic-data-table-component/table-i
     templateUrl: './agents-component.html',
     imports: [
         GenericDataTableComponent,
+        NgOptimizedImage,
     ],
     styleUrls: ['./agents-component.scss'],
     standalone: true
@@ -35,6 +37,10 @@ export class AgentsComponent implements OnInit {
     private readonly renewalConfigService = inject(RenewalConfigurationService);
     private readonly dialog=inject(MatDialog);
     private readonly agentsService = inject(AgentsService);
+
+    @ViewChild('RenewBtn', { static: true }) RenewBtn!: TemplateRef<any>;
+    @ViewChild('RequestBtn', { static: true }) RequestBtn!: TemplateRef<any>;
+    @ViewChild('ManageBtn', { static: true }) ManageBtn!: TemplateRef<any>;
 
     loading = signal(false);
     agents = signal<AgentResponse[]>([]);
@@ -47,34 +53,7 @@ export class AgentsComponent implements OnInit {
         messageIndex: 0,
     });
 // Define table columns without action buttons for this milestone
-    columnDefs: TableColumn<AgentCertificateRowFlat>[] = [
-        { key: 'actions', label: 'Actions', cellTemplateKey: 'actionsSmallFonts', sortable: false,
-            actionButtons: [
-                {
-                    id: 'request',
-                    label: (row: AgentCertificateRowFlat) => row.certIsManaged ? 'Renew' : 'Request',
-                    icon: (row: AgentCertificateRowFlat) => row.certIsManaged ? 'autorenew' : 'add_moderator',
-                    color: 'primary',
-                    variant: 'stroked',
-                },
-                {
-                    id: 'manage',
-                    label: 'Manage Renewal Configuration',
-                    icon: 'settings',
-                    variant: 'text',
-                    hidden: (row: AgentCertificateRowFlat) => !row.registryCertificateId,
-                },
-            ]},
-        { key: 'hostname', label: 'Host / Agent', sortable: true },
-        { key: 'isOnline', label: 'Online', cellTemplateKey: 'check', sortable: true },
-        { key: 'serviceName', label: 'Service', sortable: true },
-        { key: 'domainName', label: 'Domain / Endpoint', sortable: true },
-        { key: 'certIssuer', label: 'Issuer', sortable: true },
-        { key: 'certExpiry', label: 'Expiration', cellTemplateKey: 'date', sortable: true },
-        { key: 'certIsPresent', label: 'Present', cellTemplateKey: 'check', sortable: true },
-        { key: 'certIsManaged', label: 'Managed', cellTemplateKey: 'check', sortable: true },
-        { key: 'renewalConfigurationName', label: 'Renewal Group', sortable: true },
-    ];
+    columnDefs: TableColumn<AgentCertificateRowFlat>[] = [];
 
     requestProgressMessages = [
         "Requesting Server to Generate Private Key",
@@ -90,6 +69,49 @@ export class AgentsComponent implements OnInit {
     constructor() {}
 
     ngOnInit(): void {
+        this.columnDefs = [
+            { key: 'actions', label: 'Actions', cellTemplateKey: 'actionsSmallFonts', sortable: false,
+                actionButtons: [
+                    {
+                        id: 'renew',
+                        hidden: (row: AgentCertificateRowFlat)=> row.certIsManaged,
+                        customTemplate: this.RenewBtn,
+                        onClick: (row)=> {
+                            const ctx = this.findMatchingDataFromRow(row);
+                            if (ctx) this.requestCertificate(ctx.agent, ctx.service, ctx.domain);
+                        }
+                    },
+                    {
+                        id: 'request',
+                        hidden: (row: AgentCertificateRowFlat)=> !row.certIsManaged,
+                        customTemplate: this.RequestBtn,
+                        onClick: (row)=> {
+                            const ctx = this.findMatchingDataFromRow(row);
+                            if (ctx) this.requestCertificate(ctx.agent, ctx.service, ctx.domain);
+                        }
+                    },
+                    {
+                        id: 'manage',
+                        hidden: (row: AgentCertificateRowFlat) => !row.registryCertificateId,
+                        customTemplate: this.ManageBtn,
+                        onClick: (row)=>{
+                            const ctx = this.findMatchingDataFromRow(row);
+                            if (ctx) this.openManageConfigDialog(ctx.agent, ctx.domain);
+
+                        }
+                    },
+                ]},
+            { key: 'hostname', label: 'Host / Agent', sortable: true },
+            { key: 'isOnline', label: 'Online', cellTemplateKey: 'check', sortable: true },
+            { key: 'serviceName', label: 'Service', sortable: true },
+            { key: 'domainName', label: 'Domain / Endpoint', sortable: true },
+            { key: 'Issuer', label: 'Issuer', sortable: true },
+            { key: 'certExpiry', label: 'Expiration', cellTemplateKey: 'date', sortable: true },
+            { key: 'certIsPresent', label: 'Present', cellTemplateKey: 'check', sortable: true },
+            { key: 'certIsManaged', label: 'Managed', cellTemplateKey: 'check', sortable: true },
+            { key: 'renewalConfigurationName', label: 'Renewal Group', sortable: true },
+        ];
+
         this.loadAgents();
     }
 

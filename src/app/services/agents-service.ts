@@ -96,7 +96,7 @@ export class AgentsService {
                                 domainLastSeen: domain.last_seen,
 
                                 certPath: domain.certificate?.cert_path ?? null,
-                                certIssuer: domain.certificate?.issuer ?? null,
+                                Issuer: domain.certificate?.issuer ?? null,
                                 certExpiry: domain.certificate?.expiry ?? null,
                                 certIsPresent: domain.certificate?.is_present ?? false,
                                 certIsManaged: domain.certificate?.is_managed ?? false,
@@ -131,7 +131,7 @@ export class AgentsService {
             domainLastSeen: domain?.last_seen ?? '', // 🟩
             // 🟩
             certPath: null, // 🟩
-            certIssuer: null, // 🟩
+            Issuer: null, // 🟩
             certExpiry: null, // 🟩
             certIsPresent: false, // 🟩
             certIsManaged: false, // 🟩

@@ -37,19 +37,8 @@
         </mat-form-field>
         <div class="btn-group">
 
-            <button mat-stroked-button type="button"
-                    (click)="form.patchValue({ sortDir: 'asc' })"
-                    [disabled]="form.value.sortDir === 'asc'">
-                Asc
-            </button>
-            <button mat-stroked-button type="button"
-                    (click)="form.patchValue({ sortDir: 'desc' })"
-                    [disabled]="form.value.sortDir === 'desc'">
-                Desc
-            </button>
 
-
-            <button mat-flat-button type="button" color="warn" (click)="resetAll()">Reset</button>
+            <button mat-flat-button type="button" color="warn" (click)="resetAll()">Clear Filters</button>
 
             <span class="spacer"></span>
             @if (showAddButton) {
@@ -169,103 +158,60 @@
 
     }
 </ng-template>
-<ng-template #actionsCell let-row let-col="col">
-    <div class="action-buttons" (click)="$event.stopPropagation()">
-        @for (btn of col.actionButtons; track btn.id) {
-            @if (!isActionHidden(btn, row)) {
-                @switch (btn.variant ?? 'stroked') {
-                    @case ('stroked') {
-                        <button
-                            mat-stroked-button
-                            type="button"
-                            [color]="btn.color ?? 'primary'"
-                            [disabled]="isActionDisabled(btn, row)"
-                            (click)="onActionClicked($event, row, btn.id)">
-                            @if (getActionIcon(btn, row)) {
-                                <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
-                            }
-                            {{ getActionLabel(btn, row) }}
-                        </button>
-                    }
-                    @case ('flat') {
-                        <button
-                            mat-flat-button
-                            type="button"
-                            [color]="btn.color ?? 'primary'"
-                            [disabled]="isActionDisabled(btn, row)"
-                            (click)="onActionClicked($event, row, btn.id)">
-                            @if (getActionIcon(btn, row)) {
-                                <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
-                            }
-                            {{ getActionLabel(btn, row) }}
-                        </button>
-                    }
-                    @case ('text') {
-                        <button
-                            mat-button
-                            type="button"
-                            [color]="btn.color ?? 'primary'"
-                            [disabled]="isActionDisabled(btn, row)"
-                            (click)="onActionClicked($event, row, btn.id)">
-                            @if (getActionIcon(btn, row)) {
-                                <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
-                            }
-                            {{ getActionLabel(btn, row) }}
-                        </button>
-                    }
-                }
-            } @else if (getActionHiddenText(btn, row)) {
-                <span class="action-status-text">
-                    {{ getActionHiddenText(btn, row) }}
-                </span>
-            }
-        }
-    </div>
-</ng-template>
 
-<ng-template #actionsCellSmallFonts let-row let-col="col">
-    <div class="action-buttons action-buttons-small" (click)="$event.stopPropagation()">
+<ng-template #actionsCell let-row let-col="col">
+    <div class="action-buttons"
+         [ngClass]="{'action-buttons-small': col.cellTemplateKey === 'actionsSmallFonts'}"
+         (click)="$event.stopPropagation()">
+
         @for (btn of col.actionButtons; track btn.id) {
             @if (!isActionHidden(btn, row)) {
-                @switch (btn.variant ?? 'stroked') {
-                    @case ('stroked') {
-                        <button
-                            mat-stroked-button
-                            type="button"
-                            [color]="btn.color ?? 'primary'"
-                            [disabled]="isActionDisabled(btn, row)"
-                            (click)="onActionClicked($event, row, btn.id)">
-                            @if (getActionIcon(btn, row)) {
-                                <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
-                            }
-                            {{ getActionLabel(btn, row) }}
-                        </button>
-                    }
-                    @case ('flat') {
-                        <button
-                            mat-flat-button
-                            type="button"
-                            [color]="btn.color ?? 'primary'"
-                            [disabled]="isActionDisabled(btn, row)"
-                            (click)="onActionClicked($event, row, btn.id)">
-                            @if (getActionIcon(btn, row)) {
-                                <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
-                            }
-                            {{ getActionLabel(btn, row) }}
-                        </button>
-                    }
-                    @case ('text') {
-                        <button
-                            mat-button
-                            type="button"
-                            [color]="btn.color ?? 'primary'"
-                            [disabled]="isActionDisabled(btn, row)"
-                            (click)="onActionClicked($event, row, btn.id)">
-                            @if (getActionIcon(btn, row)) {
-                                <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
-                            }
-                            {{ getActionLabel(btn, row) }}
-                        </button>
+                @if (btn.customTemplate) {
+                    <ng-container
+                        [ngTemplateOutlet]="btn.customTemplate"
+                        [ngTemplateOutletContext]="{$implicit: row, btn: btn}">
+                    </ng-container>
+                } @else {
+                    @switch (btn.variant ?? 'stroked') {
+                        @case ('stroked') {
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                [color]="btn.color ?? 'primary'"
+                                [disabled]="isActionDisabled(btn, row)"
+                                (click)="onActionClicked($event, row, btn)">
+                                @if (getActionIcon(btn, row)) {
+                                    <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
+                                }
+                                {{ getActionLabel(btn, row) }}
+                            </button>
+                        }
+                        @case ('flat') {
+                            <button
+                                mat-flat-button
+                                type="button"
+                                [color]="btn.color ?? 'primary'"
+                                [disabled]="isActionDisabled(btn, row)"
+                                (click)="onActionClicked($event, row, btn)">
+                                @if (getActionIcon(btn, row)) {
+                                    <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
+                                }
+                                {{ getActionLabel(btn, row) }}
+                            </button>
+                        }
+                        @case ('text') {
+                            <button
+                                mat-button
+                                type="button"
+                                [color]="btn.color ?? 'primary'"
+                                [disabled]="isActionDisabled(btn, row)"
+                                (click)="onActionClicked($event, row, btn)">
+                                @if (getActionIcon(btn, row)) {
+                                    <mat-icon>{{ getActionIcon(btn, row) }}</mat-icon>
+                                }
+                                {{ getActionLabel(btn, row) }}
+                            </button>
+                        }
                     }
                 }
             } @else if (getActionHiddenText(btn, row)) {
@@ -273,6 +219,7 @@
                     {{ getActionHiddenText(btn, row) }}
                 </span>
             }
+
         }
     </div>
 </ng-template>
