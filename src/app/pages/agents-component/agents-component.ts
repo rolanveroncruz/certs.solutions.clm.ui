@@ -1,24 +1,32 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import {Component, inject, OnInit, signal, TemplateRef, ViewChild} from '@angular/core';
 import { AgentsService } from '../../services/agents-service';
 import {
     AgentResponse,
     ServiceData,
     DomainData,
+    AgentCertificateRowFlat,
 } from '../../services/agents.model';
 
 import { CertsService } from '../../services/certs-service';
-import { CertRequestModalComponent } from './cert-request-modal-component/cert-request-modal-component';
-import { AcquireCertRequest } from '../../services/certs.model';
+import {
+    CertRequestModalComponent,
+    CertRequestModalData,
+    CertRequestModalResult
+} from './cert-request-modal-component/cert-request-modal-component';
 import { LoginService } from '../../services/login-service';
 import {MatDialog} from '@angular/material/dialog';
+import {RenewalConfigurationService} from '../../services/renewal-configuration-service';
+import {GenericDataTableComponent} from '../../components/generic-data-table-component/generic-data-table-component';
+import {TableColumn} from '../../components/generic-data-table-component/table-interfaces';
+import {NgOptimizedImage} from '@angular/common';
 
 
 @Component({
     selector: 'app-agents',
     templateUrl: './agents-component.html',
     imports: [
-        DatePipe,
+        GenericDataTableComponent,
+        NgOptimizedImage,
     ],
     styleUrls: ['./agents-component.scss'],
     standalone: true
@@ -26,12 +34,17 @@ import {MatDialog} from '@angular/material/dialog';
 export class AgentsComponent implements OnInit {
     private readonly loginService = inject(LoginService);
     private readonly certsService = inject(CertsService);
+    private readonly renewalConfigService = inject(RenewalConfigurationService);
     private readonly dialog=inject(MatDialog);
+    private readonly agentsService = inject(AgentsService);
 
-    expandedAgentId: string | null = null;
+    @ViewChild('RenewBtn', { static: true }) RenewBtn!: TemplateRef<any>;
+    @ViewChild('RequestBtn', { static: true }) RequestBtn!: TemplateRef<any>;
+    @ViewChild('ManageBtn', { static: true }) ManageBtn!: TemplateRef<any>;
 
     loading = signal(false);
     agents = signal<AgentResponse[]>([]);
+    tableRows = signal<AgentCertificateRowFlat[]>([]);
 
     private progressTimerId: ReturnType<typeof setInterval> |null = null;
     requestProgress = signal({
@@ -39,6 +52,9 @@ export class AgentsComponent implements OnInit {
         secondsLeft: 30,
         messageIndex: 0,
     });
+// Define table columns without action buttons for this milestone
+    columnDefs: TableColumn<AgentCertificateRowFlat>[] = [];
+
     requestProgressMessages = [
         "Requesting Server to Generate Private Key",
         "Generating a Certificate Signing Request (CSR)",
@@ -50,9 +66,52 @@ export class AgentsComponent implements OnInit {
         "Certificate Installation Successful!"
     ]
 
-    constructor(private agentsService: AgentsService) {}
+    constructor() {}
 
     ngOnInit(): void {
+        this.columnDefs = [
+            { key: 'actions', label: 'Actions', cellTemplateKey: 'actionsSmallFonts', sortable: false,
+                actionButtons: [
+                    {
+                        id: 'renew',
+                        hidden: (row: AgentCertificateRowFlat)=> row.certIsManaged,
+                        customTemplate: this.RenewBtn,
+                        onClick: (row)=> {
+                            const ctx = this.findMatchingDataFromRow(row);
+                            if (ctx) this.requestCertificate(ctx.agent, ctx.service, ctx.domain);
+                        }
+                    },
+                    {
+                        id: 'request',
+                        hidden: (row: AgentCertificateRowFlat)=> !row.certIsManaged,
+                        customTemplate: this.RequestBtn,
+                        onClick: (row)=> {
+                            const ctx = this.findMatchingDataFromRow(row);
+                            if (ctx) this.requestCertificate(ctx.agent, ctx.service, ctx.domain);
+                        }
+                    },
+                    {
+                        id: 'manage',
+                        hidden: (row: AgentCertificateRowFlat) => !row.registryCertificateId,
+                        customTemplate: this.ManageBtn,
+                        onClick: (row)=>{
+                            const ctx = this.findMatchingDataFromRow(row);
+                            if (ctx) this.openManageConfigDialog(ctx.agent, ctx.domain);
+
+                        }
+                    },
+                ]},
+            { key: 'hostname', label: 'Host / Agent', sortable: true },
+            { key: 'isOnline', label: 'Online', cellTemplateKey: 'check', sortable: true },
+            { key: 'serviceName', label: 'Service', sortable: true },
+            { key: 'domainName', label: 'Domain / Endpoint', sortable: true },
+            { key: 'Issuer', label: 'Issuer', sortable: true },
+            { key: 'certExpiry', label: 'Expiration', cellTemplateKey: 'date', sortable: true },
+            { key: 'certIsPresent', label: 'Present', cellTemplateKey: 'check', sortable: true },
+            { key: 'certIsManaged', label: 'Managed', cellTemplateKey: 'check', sortable: true },
+            { key: 'renewalConfigurationName', label: 'Renewal Group', sortable: true },
+        ];
+
         this.loadAgents();
     }
 
@@ -61,6 +120,7 @@ export class AgentsComponent implements OnInit {
 
         this.loading.set(true);
 
+        // Fetch raw objects for card view
         this.agentsService.listAgents(clientId).subscribe({
             next: (data) => {
                 this.agents.set(data);
@@ -71,35 +131,100 @@ export class AgentsComponent implements OnInit {
                 this.loading.set(false);
             },
         });
+
+        // Fetch flattened rows directly for our new table view
+        this.agentsService.listAgentsAsRows(clientId).subscribe({
+            next: (rows) => {
+                this.tableRows.set(rows);
+                console.log("Table Rows:", this.tableRows())
+                this.loading.set(false);
+            },
+            error: (err) => {
+                console.error('Failed to load flat agent rows', err);
+                this.loading.set(false);
+            },
+        });
     }
 
-    toggleAgent(id: string): void {
-        this.expandedAgentId = this.expandedAgentId === id ? null : id;
-    }
 
+    // requestCertificate is called to: Enroll a new certificate or renew an old one.
     requestCertificate(
         agent: AgentResponse,
-        service: ServiceData,
+        _: ServiceData,
         domain: DomainData,
     ): void {
-        const dialogRef = this.dialog.open(CertRequestModalComponent, {
+        const dialogRef = this.dialog.open<CertRequestModalComponent,
+            CertRequestModalData,
+            CertRequestModalResult
+        >(CertRequestModalComponent, {
             width: '750px',
             maxWidth: '95vw',
             data:{
                 agentId: agent.id,
-                domainName: domain.domain_name
-
+                domainName: domain.domain_name,
+                mode: domain.certificate?.is_managed? 'renew': 'request',
+                registryCertId: domain.certificate?.registry_certificate_id ?? undefined
             }
         });
-        dialogRef.afterClosed().subscribe( (payload: AcquireCertRequest |undefined) =>{
-            if (payload){
-                this.certsService.acquireCert(payload).subscribe({
+        dialogRef.afterClosed().subscribe( (payload ) =>{
+            if (payload && payload.acquireRequest){
+                this.certsService.acquireCert(payload.acquireRequest).subscribe({
+
                     next:()=>{
+                        // We have made a successful certificate request, but actual enrollment is still pending.
                         this.startRequestProgressBanner();
+                        if (payload.configId && payload.registryCertId){
+                            this.renewalConfigService.patchCertificate(payload.registryCertId, payload.configId).subscribe({
+                                next:()=> {
+                                    this.loadAgents();
+                                },
+                                error: (err)=>{
+                                    console.error('Failed to assign renewal configuration', err);
+                                    alert('Failed to assign renewal configuration');
+                                }
+                            })
+                        }
                     },
                     error: (err)=>{
                         console.error('Failed to acquire certificate', err);
                         alert('Failed to acquire certificate');
+                    }
+                })
+            }
+        });
+    }
+
+
+    openManageConfigDialog(
+        agent: AgentResponse,
+        domain: DomainData
+    ): void {
+        console.log("agent:", agent);
+        console.log("registry_certificate_id:", domain.certificate?.registry_certificate_id);
+        const dialogRef = this.dialog.open<CertRequestModalComponent,
+            CertRequestModalData,
+            CertRequestModalResult
+        >(CertRequestModalComponent, {
+            width: '750px',
+            maxWidth: '95vw',
+            data: {
+                agentId: agent.id,
+                domainName: domain.domain_name,
+                mode: 'manageConfig',
+                currentConfigId: domain.certificate?.renewal_configuration_id ?? undefined,
+                registryCertId: domain.certificate?.registry_certificate_id ?? undefined
+            }
+        });
+
+        dialogRef.afterClosed().subscribe((payload)=> {
+            if (payload?.configId && payload?.registryCertId) {
+                this.renewalConfigService.patchCertificate(payload.registryCertId, payload.configId).subscribe({
+                    next:()=>{
+                        this.loadAgents();
+                    },
+                    error: (err)=>{
+                        console.error('Failed to assign renewal configuration', err);
+                        alert('Failed to assign renewal configuration');
                     }
                 })
             }
@@ -124,7 +249,7 @@ export class AgentsComponent implements OnInit {
 
             const nextMessageIndex =
                 Math.floor((totalSeconds - nextSecondsLeft)/messageDuration)
-                    % this.requestProgressMessages.length;
+                % this.requestProgressMessages.length;
 
             this.requestProgress.set({
                 visible: nextSecondsLeft > 0,
@@ -151,23 +276,32 @@ export class AgentsComponent implements OnInit {
             messageIndex: 0,
         });
     }
-    openManageConfigDialog(agent: AgentResponse, domain: DomainData): void {
-        const dialogRef = this.dialog.open(CertRequestModalComponent, {
-            width: '750px',
-            maxWidth: '95vw',
-            data: {
-                agentId: agent.id, // Or however you get the agent ID here
-                domainName: domain.domain_name,
-                mode: 'manageConfig',
-                currentConfigId: domain.certificate?.renewal_configuration_id
-            }
-        });
 
-        dialogRef.afterClosed().subscribe(result => {
-            if (result?.configId) {
-                // Make your API call to save the new configId
-                // this.loadAgents();
-            }
-        });
+    // Helper method to look up and reconstruct nested domain trees from primitive IDs
+    private findMatchingDataFromRow(row: AgentCertificateRowFlat): { agent: AgentResponse; service: ServiceData; domain: DomainData } | null { // 🟩
+        const agent = this.agents().find(a => a.id === row.agentId); // 🟩
+        if (!agent) return null; // 🟩
+        // 🟩
+        const service = agent.services.find(s => s.service_id === row.serviceId); // 🟩
+        if (!service) return null; // 🟩
+        // 🟩
+        const domain = service.domains.find(d => d.domain_name === row.domainName); // 🟩
+        if (!domain) return null; // 🟩
+        // 🟩
+        return { agent, service, domain }; // 🟩
+    } // 🟩
+
+    tableActionHandler(event: { row: AgentCertificateRowFlat; actionId: string }): void {
+        const context = this.findMatchingDataFromRow(event.row);
+        if (!context) return;
+
+        switch (event.actionId) {
+            case 'request':
+                this.requestCertificate(context.agent, context.service, context.domain);
+                break;
+            case 'manage':
+                this.openManageConfigDialog(context.agent, context.domain);
+                break;
+        }
     }
 }

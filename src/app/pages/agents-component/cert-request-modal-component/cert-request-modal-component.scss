@@ -85,19 +85,111 @@ mat-dialog-actions {
     }
 }
 
-/* --- 4. Material Tabs Overrides --- */
+/* --- 4. Material Tabs Overrides (Flexbox Scroll Fix) --- */
+mat-dialog-content {
+    /* Lock the main dialog container so the tab headers never scroll away */
+    overflow: hidden !important;
+    display: flex;
+    flex-direction: column;
+    padding: 0 !important;
 
-/* Override Angular Material's strict tab heights */
-::ng-deep .mat-mdc-tab-body-wrapper {
-    height: auto !important;
+    ::ng-deep .mat-mdc-tab-group {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    ::ng-deep .mat-mdc-tab-body-wrapper {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    ::ng-deep .mat-mdc-tab-body-content {
+        /* Remove scrolling and padding from Material's internal wrapper */
+        overflow: hidden !important;
+        padding: 0 !important;
+        display: flex;
+        flex-direction: column;
+    }
 }
 
-::ng-deep .mat-mdc-tab-body-content {
-    overflow: visible !important;
-}
-
-/* Style the wrapper we added to the HTML */
+/* Move the scrolling and padding to YOUR wrapper instead */
 .tab-content-wrapper {
-    padding-top: 1.5rem; /* Pushes the form down slightly from the tab headers */
-    overflow: visible;
+    flex: 1 1 auto;
+    overflow-y: auto; /* This is now the ONLY vertical scrollbar */
+    padding: 24px;
+    box-sizing: border-box;
+    min-height: 0;
+}
+// Modal Header Context Styles
+.modal-context-subtitle {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    // Global properties to force standard text scaling away from H2 defaults
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    text-transform: none; // Halts unexpected uppercase headers if parent theme enforces it
+    color: #666666;       // Clean muted gray font color
+
+    .subtitle-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .label {
+            font-weight: 600;
+            color: #444444;
+        }
+
+        .italicized {
+            font-style: italic;
+            color: #999999;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f4f4f6;
+            padding: 1px 6px;
+            border-radius: 4px;
+            color: #c0392b; // Clean system tint for explicit resource tracking strings
+            font-size: 11.5px;
+            border: 1px solid #e1e1e8;
+        }
+
+        &.unassigned code {
+            color: #7f8c8d;
+        }
+    }
+}
+/* Add this to cert-request-modal-component.scss */
+
+textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #cbd5e1; // Match your normal input border color
+    border-radius: 4px;
+    resize: vertical;
+    font-family: inherit;
+    box-sizing: border-box;
+
+    /* ✅ Force the border to stay calm when valid or touched */
+    &.ng-valid.ng-touched {
+        border: 1px solid #cbd5e1;
+    }
+
+    /* ✅ Force the border to keep a neutral color even if ng-invalid */
+    &.ng-invalid.ng-touched {
+        border: 1px solid #cbd5e1;
+    }
+
+    &:focus {
+        outline: none;
+        border-color: #2563eb; /* Your blue focus color */
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
 }

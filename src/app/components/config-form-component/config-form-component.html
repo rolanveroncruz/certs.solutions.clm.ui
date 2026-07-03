@@ -6,15 +6,23 @@
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>Description</mat-label>
-        <textarea matInput formControlName="description"></textarea>
+        <input matInput formControlName="description">
     </mat-form-field>
 
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>Renew (Days before expiry)</mat-label>
-        <input matInput type="number" formControlName="renew_days_before_expiry">
-    </mat-form-field>
+    <div class="form-row">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Renew (Days before expiry)</mat-label>
+            <input matInput type="number" formControlName="renew_days_before_expiry">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Notify Days before Renewal(comma-separated)</mat-label>
+            <input matInput type="text" formControlName="notify_days_before_renewal">
+        </mat-form-field>
+    </div>
 
     <div class="checkbox-group">
+
         <mat-checkbox formControlName="notify_on_success">Notify on Success</mat-checkbox>
         <mat-checkbox formControlName="notify_on_failure">Notify on Failure</mat-checkbox>
     </div>
@@ -24,7 +32,11 @@
         <input matInput formControlName="notification_emails">
     </mat-form-field>
 
-    @if (!isReadonly) {
-        <button mat-raised-button color="primary" type="submit">Save Configuration</button>
-    }
+    <div class="form-actions">
+         <mat-checkbox formControlName="is_default">Make Default</mat-checkbox>
+
+        @if (!isReadonly) {
+            <button mat-raised-button color="primary" type="submit">Save Configuration</button>
+        }
+    </div>
 </form>

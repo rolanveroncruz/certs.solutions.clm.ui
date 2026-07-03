@@ -1,8 +1,23 @@
 <h2 mat-dialog-title>
-    {{ data.mode === 'manageConfig' ? 'Manage Renewal Configuration' : 'Request New Certificate' }}
-    <p class="subtitle" style="font-size: 14px; margin-top: 4px; font-weight: normal;">
-        Target Agent: <code>{{ data.agentId }}</code>
-    </p>
+    {{ data.mode === 'manageConfig' ? 'Manage Renewal Configuration' :
+        data.mode==='request'?'Request New Certificate' : 'Renew Certificate' }}
+    <div class="modal-context-subtitle">
+        <div class="subtitle-item">
+            <span class="label">Target Agent:</span>
+            <code>{{ data.agentId }}</code>
+        </div>
+        @if (registryCertId) {
+            <div class="subtitle-item">
+                <span class="label">Registry Cert ID:</span>
+                <code>{{ registryCertId }}</code>
+            </div>
+        } @else {
+            <div class="subtitle-item unassigned">
+                <span class="label">Registry Cert ID:</span>
+                <span class="italicized">Unassigned (New Enrollment)</span>
+            </div>
+        }
+    </div>
 </h2>
 
 <form [formGroup]="certForm" (ngSubmit)="onSubmit()">
@@ -18,6 +33,20 @@
                         @if (certForm.get('domain_name')?.invalid && certForm.get('domain_name')?.touched) {
                             <small class="error">Domain name is required.</small>
                         }
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sans">Subject Alternative Names (SANs)</label>
+                        <textarea
+                            id="sans"
+                            (input)=" autoResize( $event)"
+                            formControlName="sans"
+                            placeholder="e.g. web.local&#10;internal.local&#10;*.dev.local&#10;(or separated by commas)"
+                        >
+                        </textarea>
+                        <small class="muted" style="display: block; margin-top: 4px; font-size: 0.8rem; color: #666;">
+                            Provide alternative domains separated by commas or newlines.
+                        </small>
                     </div>
 
                     <div class="form-group">
@@ -47,12 +76,13 @@
                 <div class="tab-content-wrapper" style="padding-top: 16px;">
                     <app-config-selector
                         [currentConfigId]="selectedConfigId"
-                        (configSelected)="onConfigSelect($event)">
+                        (configSelected)="onConfigSelect($event)"
+                        (creatingStateChanged)="isConfigCreating = $event">
                     </app-config-selector>
                 </div>
             </mat-tab>
 
-        </mat-tab-group>
+         </mat-tab-group>
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
@@ -60,8 +90,9 @@
         <button
             type="submit"
             class="btn-submit"
-            [disabled]="(data.mode !== 'manageConfig' && certForm.invalid) || !selectedConfigId">
-            {{ data.mode === 'manageConfig' ? 'Save Configuration' : 'Generate CSR Command' }}
+            [disabled]="(data.mode !== 'manageConfig' && certForm.invalid) || !selectedConfigId || isConfigCreating">
+            {{ data.mode === 'manageConfig' ? 'Use Selected Configuration' :
+                data.mode==='request'? 'Initiate Certificate Request': 'Initiate Renewal'}}
         </button>
     </mat-dialog-actions>
 

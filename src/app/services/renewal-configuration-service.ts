@@ -24,6 +24,7 @@ export interface RenewalConfiguration {
     is_default: boolean;
     created_at: string | null;
     updated_at: string | null;
+    valid_certificate_count?: number;
 }
 
 @Injectable({
@@ -31,7 +32,7 @@ export interface RenewalConfiguration {
 })
 export class RenewalConfigurationService {
     private readonly renewalConfigApiUrl = `${environment.apiBaseUrl}/renewal-configs`;
-    private readonly certsApiUrl = `${environment.apiBaseUrl}/api/v1/certs`;
+    private readonly certsApiUrl = `${environment.apiBaseUrl}/certs`;
     private readonly loginService =inject(LoginService);
     private readonly clientId = this.loginService.clientId();
     private readonly httpClient = inject(HttpClient);
@@ -54,11 +55,23 @@ export class RenewalConfigurationService {
             this.renewalConfigApiUrl, payload, { headers: this.authHeaders() }
         );
     }
+    deleteRenewalConfiguration(config_id: string): Observable<void>{
+        return this.httpClient.delete<void>(`${this.renewalConfigApiUrl}/${config_id}`,
+            {headers: this.authHeaders()})
+    }
 
     patchCertificate(registry_id: string, config_id: string): Observable<void> {
         return this.httpClient.patch<void>(
             `${this.certsApiUrl}/${registry_id}/config`,
             { config_id },
+            { headers: this.authHeaders() }
+        );
+    }
+
+    putRenewalConfiguration(config_id: string, payload: Partial<RenewalConfiguration>): Observable<RenewalConfiguration> {
+        return this.httpClient.put<RenewalConfiguration>(
+            `${this.renewalConfigApiUrl}/${config_id}`,
+            payload,
             { headers: this.authHeaders() }
         );
     }

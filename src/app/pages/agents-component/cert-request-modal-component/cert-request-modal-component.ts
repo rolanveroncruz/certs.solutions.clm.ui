@@ -9,9 +9,16 @@ import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/
 export interface CertRequestModalData {
     agentId: string;
     domainName: string;
-    mode?: 'request' | 'manageConfig';
+    mode?: 'request' | 'manageConfig' | 'renew';
     currentConfigId?:string;
+    registryCertId?:string;
 }
+export interface CertRequestModalResult {
+    configId: string | null;
+    registryCertId?: string;
+    acquireRequest?: AcquireCertRequest;
+}
+
 @Component({
     selector: 'app-cert-request-modal',
     standalone: true,
@@ -29,10 +36,13 @@ export interface CertRequestModalData {
 })
 export class CertRequestModalComponent implements OnInit {
     private fb = inject(FormBuilder);
-    private readonly dialogRef = inject(MatDialogRef<CertRequestModalComponent>);
+    private readonly dialogRef = inject(MatDialogRef<CertRequestModalComponent, CertRequestModalResult>);
     readonly data = inject<CertRequestModalData>(MAT_DIALOG_DATA);
+    readonly registryCertId = this.data.registryCertId;
 
     selectedConfigId:string | null = null;
+
+    isConfigCreating: boolean = false;
 
     // Define the form group with validation
     certForm = this.fb.group({
@@ -41,13 +51,20 @@ export class CertRequestModalComponent implements OnInit {
         country: ['', [Validators.maxLength(2), Validators.pattern(/^[A-Z]{2}$/i)]],
         province: [''],
         locality: [''],
+        sans: [''],
         email_address: ['', [Validators.email]]
     });
 
     ngOnInit(): void {
         // Autopopulate based on the discovered service info
+        console.log('registry_certificate_id', this.data.registryCertId);
         this.certForm.patchValue({
             domain_name: this.data.domainName,
+        });
+
+        setTimeout(()=>{
+           const textarea = document.getElementById('sans') as HTMLTextAreaElement;
+           if (textarea) this.autoResize({target:textarea } as any);
         });
 
         if (this.data.mode === 'manageConfig'){
@@ -60,23 +77,39 @@ export class CertRequestModalComponent implements OnInit {
 
     onSubmit(): void {
         if (this.data.mode === 'manageConfig'){
-            this.dialogRef.close({configId:this.selectedConfigId});
+            this.dialogRef.close({
+                configId:this.selectedConfigId,
+                registryCertId: this.registryCertId});
             return;
         }
+
         if (this.certForm.valid) {
             const formValue = this.certForm.value;
 
-            const payload: AcquireCertRequest = {
+            const parsedSansArray: string[] = formValue.sans
+                ? String(formValue.sans)
+                    .split(/[,\n;]+/)
+                    .map((domain:string)=>domain.trim())
+                    .filter(( domain:string)=>domain.length>0)
+                : [];
+
+            const acquireRequest: AcquireCertRequest = {
                 agent_id: this.data.agentId,
                 domain_name: formValue.domain_name ?? '',
                 organization: formValue.organization ?? undefined,
                 country: formValue.country ?? undefined,
                 province: formValue.province ?? undefined,
                 locality: formValue.locality ?? undefined,
-                email_address: formValue.email_address ?? undefined
+                email_address: formValue.email_address ?? undefined,
+                sans: parsedSansArray,
+                renewal_configuration_id: this.selectedConfigId,
             };
 
-            this.dialogRef.close(payload);
+            this.dialogRef.close({
+                acquireRequest: acquireRequest,
+                configId:this.selectedConfigId,
+                registryCertId: this.registryCertId,
+            });
         }
     }
 
@@ -85,6 +118,17 @@ export class CertRequestModalComponent implements OnInit {
     }
     onConfigSelect(configId:string): void{
         this.selectedConfigId = configId;
+    }
+    // cert-request-modal-component.ts
+
+    autoResize(event: Event): void {
+        const textarea = event.target as HTMLTextAreaElement;
+
+       // 1. Reset height to 'auto' so it shrinks when text is deleted
+        textarea.style.height = 'auto';
+
+       // 2. Set the height to the scrollHeight (total content height)
+        textarea.style.height = textarea.scrollHeight + 'px';
     }
 }
 

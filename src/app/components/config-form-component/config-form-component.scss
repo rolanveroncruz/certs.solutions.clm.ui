@@ -1,33 +1,64 @@
 :host {
     display: block;
     width: 100%;
+    box-sizing: border-box;
 }
 
 form {
     display: flex;
     flex-direction: column;
-    gap: 16px; /* Increased slightly to balance the removed subscript space */
-    padding: 8px 4px;
+    gap: 12px; /* ✅ Reduced gap from 16px to 12px to pull elements tighter */
+    padding: 8px 24px 8px 4px;
+    overflow-y: auto;
+    box-sizing: border-box;
+
+    /* ✅ OVERRIDE: Force Angular Material fields to be physically shorter */
+    ::ng-deep .mat-mdc-form-field {
+        --mat-form-field-container-height: 48px; /* Standard is 56px. This saves 8px per field */
+    }
 
     mat-form-field {
         width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* ✅ Added layout rules for the new side-by-side row */
+    .form-row {
+        display: flex;
+        gap: 16px;
+        width: 100%;
+        box-sizing: border-box;
+
+        mat-form-field {
+            flex: 1; /* Makes both fields take up exactly 50% of the row */
+        }
     }
 
     textarea {
-        min-height: 50px; /* Reduced from 80px to save vertical space */
+        min-height: 40px; /* ✅ Reduced further from 50px */
         resize: vertical;
     }
 
     .checkbox-group {
         display: flex;
-        flex-direction: row; /* Place checkboxes side-by-side */
-        gap: 24px; /* Space between the two checkboxes */
-        margin: 0 4px; /* Removed heavy top/bottom margins */
+        flex-direction: row;
+        gap: 24px;
+        margin: 0 4px;
     }
+    .form-actions {
+        display: flex;
+        justify-content: space-between; /* Pushes checkbox to the left, button to the right */
+        align-items: center;            /* Vertically centers them with each other */
+        margin-top: 4px;
+        padding: 0 4px;                 /* Matches the visual alignment of the form inputs */
 
+        button[type="submit"] {
+            padding: 0 24px;
+        }
+    }
     button[type="submit"] {
         align-self: flex-end;
-        margin-top: 8px; /* Reduced top margin */
+        margin-top: 4px; /* ✅ Reduced top margin to pull the button up closer */
         padding: 0 24px;
     }
 }
@@ -52,3 +83,4 @@ form {
         }
     }
 }
+
