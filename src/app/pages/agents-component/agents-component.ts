@@ -74,7 +74,7 @@ export class AgentsComponent implements OnInit {
                 actionButtons: [
                     {
                         id: 'renew',
-                        hidden: (row: AgentCertificateRowFlat)=> row.certIsManaged,
+                        hidden: (row: AgentCertificateRowFlat)=> !row.certIsManaged,
                         customTemplate: this.RenewBtn,
                         onClick: (row)=> {
                             const ctx = this.findMatchingDataFromRow(row);
@@ -83,7 +83,7 @@ export class AgentsComponent implements OnInit {
                     },
                     {
                         id: 'request',
-                        hidden: (row: AgentCertificateRowFlat)=> !row.certIsManaged,
+                        hidden: (row: AgentCertificateRowFlat)=> row.certIsManaged,
                         customTemplate: this.RequestBtn,
                         onClick: (row)=> {
                             const ctx = this.findMatchingDataFromRow(row);
