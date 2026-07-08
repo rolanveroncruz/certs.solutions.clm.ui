@@ -269,7 +269,13 @@ mat-paginator {
     display: flex;
     gap: 8px;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    min-width: 0;
+    button{
+        white-space: nowrap;
+        flex: 0 0 auto;
+        min-width: 0;
+    }
 }
 .action-buttons-small {
     gap: 4px;
@@ -281,6 +287,8 @@ mat-paginator {
         min-height:56px;
         padding: 8px 4px !important;
         white-space: normal;
+        flex: 0 0 auto;
+        min-width: 0;
     }
     .mdc-button__label {
         display: flex;
@@ -289,6 +297,8 @@ mat-paginator {
         justify-content: center;
         gap: 4px;                // Space between the icon and text
         text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     mat-icon {
@@ -320,5 +330,46 @@ mat-paginator {
         span {
             font-weight: 500;
         }
+    }
+}
+
+/* ✅ Styling for your completely custom image button */
+.custom-image-btn {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    background: transparent;
+    border: 1px solid #cbd5e1; /* Add a subtle border like a stroked button */
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    min-height: 60px;
+    width: 60px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.04);
+        border-color: #94a3b8;
+    }
+
+    &:active {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-image {
+        display: block;
+        height:24px;
+        width:24px;
+        margin-bottom: auto; /* Space between image and text */
+        object-fit: contain;
+    }
+
+    .btn-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #3f51b5; /* Primary color to match standard buttons */
+        line-height: 1.1;
+        margin-top: auto;
     }
 }

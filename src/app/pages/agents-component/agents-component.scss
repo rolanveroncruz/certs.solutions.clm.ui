@@ -351,44 +351,4 @@
         &:hover { background: #0056b3; }
     }
 }
-/* Add to the bottom of agents-component.scss */
 
-/* ✅ Styling for your completely custom image button */
-.custom-image-btn {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    background: transparent;
-    border: 1px solid #ccc; /* Add a subtle border like a stroked button */
-    border-radius: 8px;
-    padding: 6px 12px;
-    cursor: pointer;
-    min-width: 64px;
-    min-height: 56px;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-
-    &:hover {
-        background: rgba(0, 0, 0, 0.04);
-        border-color: #888;
-    }
-
-    &:active {
-        background: rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-image {
-        width: 40px;   /* Control the size of your custom image */
-        height:40px;
-        margin-bottom: 4px; /* Space between image and text */
-        object-fit: contain;
-    }
-
-    .btn-label {
-        font-size: 11px;
-        font-weight: 500;
-        color: #3f51b5; /* Primary color to match standard buttons */
-        line-height: 1.1;
-    }
-}
