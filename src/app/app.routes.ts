@@ -8,7 +8,7 @@ import {DiscoveriesComponent} from './pages/discoveries-component/discoveries-co
 import {AgentsComponent} from './pages/agents-component/agents-component';
 
 export const routes: Routes = [
-  { path: '',  pathMatch: 'full', component:LandingPageComponent},
+  { path: '',  pathMatch: 'full', component:LoginComponent},
   { path: 'login', pathMatch: 'full', component:LoginComponent },
   { path: 'main', component:MainComponent,
   children: [

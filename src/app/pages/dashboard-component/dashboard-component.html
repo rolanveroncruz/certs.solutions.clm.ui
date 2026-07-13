@@ -100,39 +100,6 @@
       </div>
     </mat-card>
 
-    <!-- Recent activity -->
-    <mat-card class="panel" appearance="outlined">
-      <div class="panel-head">
-        <div class="panel-title">
-          <mat-icon aria-hidden="true">history</mat-icon>
-          <span>Recent Activity</span>
-        </div>
-
-        <button mat-button type="button">
-          Refresh
-          <mat-icon aria-hidden="true">refresh</mat-icon>
-        </button>
-      </div>
-
-      <mat-divider></mat-divider>
-
-      <div class="activity">
-        @for (a of activity(); track a.when + a.title) {
-          <div class="activity-row">
-            <div class="a-icon">
-              <mat-icon aria-hidden="true">{{ a.icon }}</mat-icon>
-            </div>
-
-            <div class="a-body">
-              <div class="a-title">{{ a.title }}</div>
-              <div class="a-detail">{{ a.detail }}</div>
-            </div>
-
-            <div class="a-when">{{ a.when }}</div>
-          </div>
-        }
-      </div>
-    </mat-card>
 
   </section>
 </div>

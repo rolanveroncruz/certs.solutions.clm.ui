@@ -49,7 +49,6 @@ export class DashboardComponent {
   readonly stats = signal<StatCard[]>([
     { label: 'Active Certificates', value: '128', icon: 'verified', hint: 'Currently valid + deployed' },
     { label: 'Expiring (30 days)', value: '7', icon: 'schedule', hint: 'Needs attention soon' },
-    { label: 'Pending Requests', value: '4', icon: 'hourglass_top', hint: 'Awaiting approval or issuance' },
     { label: 'Agents Online', value: '12', icon: 'smart_toy', hint: 'Last 5 minutes heartbeat' },
   ]);
 
