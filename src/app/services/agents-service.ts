@@ -143,5 +143,20 @@ export class AgentsService {
             scheduledRenewalDate: null // 🟩
         }; // 🟩
     } // 🟩
+// Inside agents-service.ts
 
+// ✅ Add this helper to extract all certificates from the agent tree
+    getAllCertificates(agents: AgentResponse[]): any[] {
+        const certs: any[] = [];
+        agents.forEach(agent => {
+            agent.services?.forEach(service => {
+                service.domains?.forEach(domain => {
+                    if (domain.certificate) {
+                        certs.push(domain.certificate);
+                    }
+                });
+            });
+        });
+        return certs;
+    }
 }

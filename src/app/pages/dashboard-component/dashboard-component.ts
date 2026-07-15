@@ -1,100 +1,79 @@
-import { Component, computed, signal } from '@angular/core';
+import {Component, signal, inject, computed} from '@angular/core';
+import {Router} from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+// ✅ Removed MatProgressBarModule
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
+import {AgentsService} from '../../services/agents-service';
+import {AgentResponse} from '../../services/agents.model';
 
 type StatCard = {
   label: string;
   value: string;
   icon: string;
   hint?: string;
+  route?: string;
 };
 
-type RecentActivity = {
-  when: string;
-  title: string;
-  detail: string;
-  icon: string;
-};
-
-type ExpiringCert = {
-  commonName: string;
-  environment: 'Prod' | 'Staging' | 'Dev';
-  daysLeft: number;
-  issuer: string;
-};
+// ... (Type definitions remain the same)
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressBarModule,
-    MatChipsModule,
-    MatDividerModule,
-  ],
-  templateUrl: './dashboard-component.html',
-  styleUrls: ['./dashboard-component.scss'],
+    selector: 'app-dashboard',
+    standalone: true,
+    imports: [
+        CommonModule,
+        MatCardModule,
+        MatIconModule,
+        MatButtonModule,
+        // ✅ Removed MatProgressBarModule
+        MatChipsModule,
+        // ✅ Removed MatDividerModule
+    ],
+    templateUrl: './dashboard-component.html',
+    styleUrls: ['./dashboard-component.scss'],
 })
 export class DashboardComponent {
-  // In real life, these come from your API
-  readonly stats = signal<StatCard[]>([
-    { label: 'Active Certificates', value: '128', icon: 'verified', hint: 'Currently valid + deployed' },
-    { label: 'Expiring (30 days)', value: '7', icon: 'schedule', hint: 'Needs attention soon' },
-    { label: 'Agents Online', value: '12', icon: 'smart_toy', hint: 'Last 5 minutes heartbeat' },
-  ]);
+    private readonly router = inject(Router);
+    private readonly agentsService = inject(AgentsService);
+    readonly agents = signal<AgentResponse[]>([]);
+    readonly allCertificates = computed(()=>this.agentsService.getAllCertificates(this.agents()))
 
-  readonly expiring = signal<ExpiringCert[]>([
-    { commonName: 'api.company.com', environment: 'Prod', daysLeft: 12, issuer: 'Let’s Encrypt' },
-    { commonName: 'vpn.company.com', environment: 'Prod', daysLeft: 19, issuer: 'DigiCert' },
-    { commonName: 'staging.company.com', environment: 'Staging', daysLeft: 25, issuer: 'Let’s Encrypt' },
-    { commonName: 'internal-ca-01', environment: 'Dev', daysLeft: 29, issuer: 'Internal CA' },
-  ]);
+    // Actions (wire these to navigation/dialogs later)
+    onRequestCertificate(): void {
+        // TODO: navigate to Discoveries or Request flow
+        console.log('Request new certificate');
+    }
+    onStatClick(route?:string): void{
+        if (route){
+            this.router.navigateByUrl(route).then(r => {
+                console.log("routed to:", r);
+            });
+        }
+    }
+    // ✅ 1. Num Active Certificates (Managed)
+    readonly numActiveCertificates = computed(() =>
+        this.allCertificates().filter(c => c.is_managed).length
+    );
 
-  readonly activity = signal<RecentActivity[]>([
-    { when: '2m ago', title: 'Certificate renewed', detail: 'api.company.com (Prod)', icon: 'autorenew' },
-    { when: '18m ago', title: 'Agent check-in', detail: 'agent-ph-03 is online', icon: 'cloud_done' },
-    { when: '1h ago', title: 'CSR created', detail: 'vpn.company.com', icon: 'description' },
-    { when: '3h ago', title: 'Policy updated', detail: 'Renewal window set to 21 days', icon: 'policy' },
-  ]);
+// ✅ 2. Num Expiring Certificates (<= 30 days or expired)
+    readonly numExpiringCertificates = computed(() =>
+        this.allCertificates().filter(c =>
+            c.expiry && this.agentsService.isExpiringSoon(c.expiry, 30)
+        ).length
+    );
 
-  // A simple “health” style metric for the header progress (example)
-  readonly compliancePct = signal(86);
+// ✅ 3. Num Online Agents
+    readonly numOnlineAgents = computed(() =>
+        this.agents().filter(a => a.is_online).length
+    );
+// Lifecycle to load data
+    ngOnInit() {
+        this.agentsService.listAgents(1).subscribe(data => {
+            this.agents.set(data);
+        });
+    }
 
-  readonly complianceLabel = computed(() => {
-    const v = this.compliancePct();
-    if (v >= 90) return 'Excellent';
-    if (v >= 75) return 'Good';
-    if (v >= 60) return 'Fair';
-    return 'Needs attention';
-  });
-
-  // Actions (wire these to navigation/dialogs later)
-  onRequestCertificate(): void {
-    // TODO: navigate to Discoveries or Request flow
-    console.log('Request new certificate');
-  }
-
-  onRunDiscovery(): void {
-    // TODO: navigate to Discoveries page
-    console.log('Run discovery');
-  }
-
-  onViewAllExpiring(): void {
-    // TODO: navigate to Certificates list filtered by expiry
-    console.log('View all expiring');
-  }
-
-  onOpenCert(item: ExpiringCert): void {
-    // TODO: open certificate detail
-    console.log('Open cert', item);
-  }
 }

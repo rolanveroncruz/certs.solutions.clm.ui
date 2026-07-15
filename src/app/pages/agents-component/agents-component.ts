@@ -1,4 +1,5 @@
-import {Component, inject, OnInit, signal, TemplateRef, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {Component, computed, inject, OnInit, signal, TemplateRef, ViewChild} from '@angular/core';
 import { AgentsService } from '../../services/agents-service';
 import {
     AgentResponse,
@@ -32,6 +33,7 @@ import {NgOptimizedImage} from '@angular/common';
     standalone: true
 })
 export class AgentsComponent implements OnInit {
+    private readonly route = inject(ActivatedRoute);
     private readonly loginService = inject(LoginService);
     private readonly certsService = inject(CertsService);
     private readonly renewalConfigService = inject(RenewalConfigurationService);
@@ -44,7 +46,32 @@ export class AgentsComponent implements OnInit {
 
     loading = signal(false);
     agents = signal<AgentResponse[]>([]);
-    tableRows = signal<AgentCertificateRowFlat[]>([]);
+    allTableRows = signal<AgentCertificateRowFlat[]>([]);
+    private currentFilter = signal<string | null>(null);
+    tableRows = computed(()=>{
+        const rows = this.allTableRows();
+        const filter = this.currentFilter();
+
+        if (!filter) return rows;
+        const now = new Date();
+        const thirtyDaysInMs = 30* 24 * 60 * 60 * 1000;
+
+        return rows.filter( row=> {
+            switch(filter){
+                case 'online':
+                    return row.isOnline;
+                    case 'expiring':
+                        if (!row.certExpiry) return false;
+                        const expirationDate = new Date(row.certExpiry);
+                        return expirationDate.getTime() - now.getTime() <= thirtyDaysInMs;
+                case 'active':
+                    return row.certIsManaged;
+                        default:
+                            return true;
+            }
+        })
+
+    })
 
     private progressTimerId: ReturnType<typeof setInterval> |null = null;
     requestProgress = signal({
@@ -69,6 +96,10 @@ export class AgentsComponent implements OnInit {
     constructor() {}
 
     ngOnInit(): void {
+        this.route.queryParamMap.subscribe(params => {
+            this.currentFilter.set(params.get('filter'))
+        })
+
         this.columnDefs = [
             { key: 'actions', label: 'Actions', cellTemplateKey: 'actionsSmallFonts', sortable: false,
                 actionButtons: [
@@ -135,8 +166,7 @@ export class AgentsComponent implements OnInit {
         // Fetch flattened rows directly for our new table view
         this.agentsService.listAgentsAsRows(clientId).subscribe({
             next: (rows) => {
-                this.tableRows.set(rows);
-                console.log("Table Rows:", this.tableRows())
+                this.allTableRows.set(rows);
                 this.loading.set(false);
             },
             error: (err) => {
