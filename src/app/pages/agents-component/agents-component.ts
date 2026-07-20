@@ -20,6 +20,8 @@ import {RenewalConfigurationService} from '../../services/renewal-configuration-
 import {GenericDataTableComponent} from '../../components/generic-data-table-component/generic-data-table-component';
 import {TableColumn} from '../../components/generic-data-table-component/table-interfaces';
 import {NgOptimizedImage} from '@angular/common';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
 
 
 @Component({
@@ -28,6 +30,8 @@ import {NgOptimizedImage} from '@angular/common';
     imports: [
         GenericDataTableComponent,
         NgOptimizedImage,
+        MatCardModule,
+        MatIconModule,
     ],
     styleUrls: ['./agents-component.scss'],
     standalone: true

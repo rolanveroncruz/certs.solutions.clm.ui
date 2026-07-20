@@ -1,7 +1,17 @@
 <div class="agents-container">
-    <div class="view-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h2>Network Agents</h2>
+    <mat-card class="hero" appearance="outlined">
+    <div class="hero-row">
+        <div class="hero-left">
+            <div class="hero-title">
+                <mat-icon>smart_toy</mat-icon>
+                 <span>Network Agents</span>
+            </div>
+            <div class="hero-sub">
+                Manage deployed agents, monitor connections, and perform certificate operations.
+            </div>
+        </div>
     </div>
+    </mat-card>
 
     @if (requestProgress().visible) {
         <div class="request-progress-banner">

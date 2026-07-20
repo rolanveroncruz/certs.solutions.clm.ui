@@ -1,8 +1,16 @@
 <div class="discovery-container">
-
-    <div class="probe-header mat-elevation-z2">
-        <h2><mat-icon>security</mat-icon> Certificate Explorer</h2>
-
+    <mat-card class="hero" appearance="outlined">
+        <div class="hero-row">
+            <div class="hero-left">
+                <div class="hero-title">
+                    <mat-icon>smart_toy</mat-icon>
+                    <span>Certificate Explorer</span>
+                </div>
+                <div class="hero-sub">
+                    Explore certificates in other servers.
+                </div>
+            </div>
+        </div>
         <div class="search-box">
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Probe Target URL (e.g., google.com)</mat-label>
@@ -17,7 +25,9 @@
                 <mat-progress-bar mode="indeterminate" class="loader"></mat-progress-bar>
             }
         </div>
-    </div>
+</mat-card>
+
+    <div class="probe-header mat-elevation-z2">
 
     <div class="content-layout">
 
@@ -120,4 +130,5 @@
             }
         </div>
     </div>
+</div>
 </div>

@@ -1,5 +1,50 @@
+.hero {
+    padding: 32px 24px;
+    border-radius: 16px;
+    background-color: #ffffff; // Assuming a white card background
+
+    .hero-left {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .hero-title {
+        display: flex;
+        align-items: center;
+        gap: 12px; // ✅ Creates proper horizontal spacing between the icon and the text
+        margin-bottom: 8px; // ✅ Pushes the subtitle down for proper vertical spacing
+
+        mat-icon {
+            font-size: 36px; // ✅ Scaled up the icon to match the new larger text
+            height: 36px;
+            width: 36px;
+            color: #1976d2; // Matches your stat icon theme
+        }
+
+        span {
+            font-size: 32px; // ✅ Significantly increased font size so it looks like a true Hero header
+            font-weight: 800; // ✅ Made it extra bold to establish visual hierarchy
+            color: #1e293b; // Deep slate color for a professional look
+            letter-spacing: -0.5px; // ✅ Tightens the large text slightly for a cleaner look
+        }
+    }
+
+    .hero-sub {
+        font-size: 16px; // ✅ Increased for better readability
+        color: #475569; // ✅ Muted gray color so it doesn't compete with the main title
+        line-height: 1.5;
+        margin-bottom: 24px; // ✅ Ensures plenty of breathing room before the action button
+    }
+
+    .hero-actions {
+        // Optional: Ensures the button aligns nicely
+        display: flex;
+        align-items: center;
+    }
+}
+
 .agents-container {
-    padding: 24px;
     max-width: none;
     margin: 0 auto;
     transition: max-width 0.5s ease;
