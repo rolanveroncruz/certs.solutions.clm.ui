@@ -27,6 +27,20 @@
 
             <mat-tab label="Certificate Signing Request" [disabled]="data.mode === 'manageConfig'">
                 <div class="tab-content-wrapper" style="padding-top: 16px;">
+
+                    <div class="form-group">
+                        <label for="provider_id">Certificate Authority (Provider)</label>
+                        <select id="provider_id" formControlName="provider_id">
+                            <option value="" disabled>Select a CA...</option>
+                            @for (provider of providers(); track provider.id) {
+                                <option [value]="provider.id">{{ provider.name }}</option>
+                            }
+                        </select>
+                        @if (certForm.get('provider_id')?.invalid && certForm.get('provider_id')?.touched) {
+                            <small class="error">A Certificate Authority must be selected.</small>
+                        }
+                    </div>
+
                     <div class="form-group">
                         <label for="domain_name">Common Name (Domain)</label>
                         <input id="domain_name" type="text" formControlName="domain_name" placeholder="e.g. api.internal.local">

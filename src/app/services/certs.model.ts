@@ -9,6 +9,7 @@ export interface AcquireCertRequest {
     email_address?: string;
     sans?: string[];
     renewal_configuration_id?: string | null;
+    provider_id: string;
 }
 
 export interface AcquireCertResponse {

@@ -39,6 +39,8 @@ export class CertsService {
      * Gets a list of the Providers (CAs) we support.
      */
     getProviderList():Observable<ListProvidersRow[]>{
-        return this.http.get<ListProvidersRow[]>(`${this.apiUrl}/providers`);
+        return this.http.get<ListProvidersRow[]>(
+            `${environment.apiBaseUrl}/providers`,
+            {headers: this.authHeaders()});
     }
 }

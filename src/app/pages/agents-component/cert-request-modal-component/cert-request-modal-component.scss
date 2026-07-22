@@ -29,12 +29,15 @@
         margin-bottom: 0.4rem;
     }
 
-    input {
+    input,select {
         padding: 0.625rem;
         border: 1px solid #cbd5e1;
         border-radius: 6px;
         font-size: 0.9375rem;
         transition: border-color 0.2s;
+
+        background-color: #fff;
+        font-family: inherit;
 
         &:focus {
             outline: none;

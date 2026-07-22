@@ -1,10 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {Component, OnInit, inject, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AcquireCertRequest} from '../../../services/certs.model'
 import {MatTab, MatTabGroup,MatTabsModule} from '@angular/material/tabs';
 import {ConfigSelectorComponent} from '../../../components/config-selector-component/config-selector-component';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import {CertsService, ListProvidersRow} from '../../../services/certs-service';
 
 export interface CertRequestModalData {
     agentId: string;
@@ -12,6 +13,7 @@ export interface CertRequestModalData {
     mode?: 'request' | 'manageConfig' | 'renew';
     currentConfigId?:string;
     registryCertId?:string;
+    currentProviderId?:string;
 }
 export interface CertRequestModalResult {
     configId: string | null;
@@ -37,15 +39,17 @@ export interface CertRequestModalResult {
 export class CertRequestModalComponent implements OnInit {
     private fb = inject(FormBuilder);
     private readonly dialogRef = inject(MatDialogRef<CertRequestModalComponent, CertRequestModalResult>);
+    private readonly certService = inject(CertsService);
     readonly data = inject<CertRequestModalData>(MAT_DIALOG_DATA);
     readonly registryCertId = this.data.registryCertId;
 
     selectedConfigId:string | null = null;
-
     isConfigCreating: boolean = false;
+    providers = signal<ListProvidersRow[]>([]);
 
     // Define the form group with validation
     certForm = this.fb.group({
+        provider_id:['', [Validators.required]],
         domain_name: ['', [Validators.required, Validators.minLength(3)]],
         organization: [''],
         country: ['', [Validators.maxLength(2), Validators.pattern(/^[A-Z]{2}$/i)]],
@@ -61,6 +65,20 @@ export class CertRequestModalComponent implements OnInit {
         this.certForm.patchValue({
             domain_name: this.data.domainName,
         });
+        this.certService.getProviderList().subscribe({
+            next: (providers)=>{
+                this.providers.set(providers);
+                let defaultProvider = providers.find(p=>p.id===this.data.currentProviderId);
+
+                if(!defaultProvider){
+                    defaultProvider = providers.find(p=>p.name.toLowerCase()==='globalsign');
+                }
+                if (defaultProvider){
+                    this.certForm.patchValue({provider_id: defaultProvider.id})
+                }
+            },
+            error: (err)=> console.log('Failed to load CA providers:', err)
+        })
 
         setTimeout(()=>{
            const textarea = document.getElementById('sans') as HTMLTextAreaElement;
@@ -95,6 +113,7 @@ export class CertRequestModalComponent implements OnInit {
 
             const acquireRequest: AcquireCertRequest = {
                 agent_id: this.data.agentId,
+                provider_id: formValue.provider_id?? '',
                 domain_name: formValue.domain_name ?? '',
                 organization: formValue.organization ?? undefined,
                 country: formValue.country ?? undefined,

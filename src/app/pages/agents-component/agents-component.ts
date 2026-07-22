@@ -198,7 +198,8 @@ export class AgentsComponent implements OnInit {
                 agentId: agent.id,
                 domainName: domain.domain_name,
                 mode: domain.certificate?.is_managed? 'renew': 'request',
-                registryCertId: domain.certificate?.registry_certificate_id ?? undefined
+                registryCertId: domain.certificate?.registry_certificate_id ?? undefined,
+                currentProviderId: (domain.certificate as any)?.provider_id?? undefined,
             }
         });
         dialogRef.afterClosed().subscribe( (payload ) =>{
