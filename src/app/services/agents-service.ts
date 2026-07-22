@@ -106,6 +106,8 @@ export class AgentsService {
                                 renewalConfigurationName: domain.certificate?.renewal_configuration_name ?? null,
                                 renewsDaysBeforeExpiry: domain.certificate?.renews_days_before_expiry ?? null,
                                 scheduledRenewalDate: domain.certificate?.scheduled_renewal_date ?? null,
+                                providerId: domain.certificate?.provider_id ?? null,
+                                providerName: domain.certificate?.provider_name ?? null,
                             });
                         }
                     }
@@ -140,7 +142,9 @@ export class AgentsService {
             renewalConfigurationId: null, // 🟩
             renewalConfigurationName: null, // 🟩
             renewsDaysBeforeExpiry: null, // 🟩
-            scheduledRenewalDate: null // 🟩
+            scheduledRenewalDate: null, // 🟩
+            providerId: null,
+            providerName: null,
         }; // 🟩
     } // 🟩
 // Inside agents-service.ts

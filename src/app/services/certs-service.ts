@@ -5,6 +5,13 @@ import { AcquireCertRequest, AcquireCertResponse } from './certs.model';
 import { environment } from '../../environments/environment';
 import {LoginService} from './login-service'; // Adjust path as needed
 
+export interface ListProvidersRow {
+    id: string;                  // ✅ uuid.UUID serializes to a string in JSON
+    name: string;                // ✅
+    directory_url: string;       // ✅
+    website_url: string | null;  // ✅ sql.NullString serializes to either a string or null
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -26,5 +33,12 @@ export class CertsService {
             `${this.apiUrl}/acquire`,
             payload, {headers: this.authHeaders()}
         );
+    }
+
+    /**
+     * Gets a list of the Providers (CAs) we support.
+     */
+    getProviderList():Observable<ListProvidersRow[]>{
+        return this.http.get<ListProvidersRow[]>(`${this.apiUrl}/providers`);
     }
 }

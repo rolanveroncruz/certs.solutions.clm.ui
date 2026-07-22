@@ -139,6 +139,7 @@ export class AgentsComponent implements OnInit {
             { key: 'hostname', label: 'Host / Agent', sortable: true },
             { key: 'isOnline', label: 'Online', cellTemplateKey: 'check', sortable: true },
             { key: 'serviceName', label: 'Service', sortable: true },
+            { key: 'providerName', label: 'CA', sortable: true },
             { key: 'domainName', label: 'Domain / Endpoint', sortable: true },
             { key: 'Issuer', label: 'Issuer', sortable: true },
             { key: 'certExpiry', label: 'Expiration', cellTemplateKey: 'date', sortable: true },

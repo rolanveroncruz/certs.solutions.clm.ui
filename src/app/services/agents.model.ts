@@ -10,6 +10,8 @@ export interface CertDeployment {
     renewal_configuration_name: string | null;
     renews_days_before_expiry: number;
     scheduled_renewal_date: string | null;
+    provider_id: string | null;
+    provider_name: string | null;
 }
 
 export interface DomainData {
@@ -59,5 +61,7 @@ export interface AgentCertificateRowFlat {
     renewalConfigurationName: string | null;
     renewsDaysBeforeExpiry: number | null;
     scheduledRenewalDate: string | null; // ISO Date String
+    providerId: string | null;
+    providerName: string | null;
 }
 
