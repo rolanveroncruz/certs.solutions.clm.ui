@@ -35,9 +35,11 @@ export class LoginComponent {
     private loginService = inject(LoginService);
     private router = inject(Router);
 
+    currentYear = new Date().getFullYear();
+
     hidePassword = signal(true);
     isSubmitting = signal(false);
-    errorText= signal<string | null>(null);
+    errorText = signal<string | null>(null);
 
     readonly form = this.fb.group({
         email: ['', [Validators.required, Validators.email]],
@@ -48,12 +50,13 @@ export class LoginComponent {
     togglePasswordVisibility(): void {
         this.hidePassword.set(!this.hidePassword());
     }
-    async onSubmit(event?:Event): Promise<void> {
+
+    async onSubmit(event?: Event): Promise<void> {
         this.errorText.set(null);
         console.log("In Login Component, onSubmit");
         event?.preventDefault();
 
-        if (this.form.invalid){
+        if (this.form.invalid) {
             this.form.markAllAsTouched();
             return;
         }
@@ -61,35 +64,30 @@ export class LoginComponent {
         if (this.isSubmitting()) return;
         this.isSubmitting.set(true);
 
-        try{
-            const {email, password} = this.form.getRawValue();
+        const {email, password} = this.form.getRawValue();
 
-            const response = await firstValueFrom(
-                this.loginService.login(email ?? '', password ?? '')
-            );
-            console.log("Login response: ", response);
-            if (this.loginService.isLoggedIn()) {
-                console.log("Login successful. Navigating to dashboard.");
-                await this.router.navigateByUrl('/main/dashboard').then();
-            } else{
-                console.log("Login failed.");
+        this.loginService.login(email ?? '', password ?? '').subscribe({
+            next: (response) => {
+                console.log("Login response: ", response);
+                if (this.loginService.isLoggedIn()) {
+                    console.log("Login successful. Navigating to dashboard.");
+                    this.router.navigateByUrl('/main/dashboard').then();
+                } else {
+                    console.log("Login failed.");
+                }
+            },
+            error: (error: any) => {
+                console.log("Login failed:", error);
+                if (error?.status === 401) {
+                    this.errorText.set("Unauthorized: " + error.error.message );
+                } else {
+                    this.errorText.set("An unexpected error occurred.");
+                }
+                this.isSubmitting.set(false);
+            },
+            complete: () => {
+                this.isSubmitting.set(false);
             }
-        } catch (err:any){
-            console.log("Login failed:", err);
-            if (err?.status === 401)
-            {
-                this.errorText.set('Login failed. Invalid email or password');
-                console.log("Login failed", this.errorText());
-            } else{
-                this.errorText.set('An unexpected error occurred. Please try again later.');
-                console.log("Login failed", this.errorText());
-            }
-        } finally {
-            this.isSubmitting.set(false);
-        }
-
+        })
     }
-
-    readonly currentYear = new Date().getFullYear();
-
 }
