@@ -1,0 +1,45 @@
+<div class="agents-container">
+    <!-- ✅ Replaced standard header with the consistent .hero card structure -->
+    <mat-card class="hero" appearance="outlined">
+        <div class="hero-row">
+            <div class="hero-left">
+                <div class="hero-title">
+                    <mat-icon>smart_toy</mat-icon>
+                    <span>Agent Download Page</span>
+                </div>
+                <div class="hero-sub">
+                    Download and deploy the Certificate Lifecycle Management (CLM) agent to manage connections, monitor certificates, and automate renewals.
+                </div>
+            </div>
+        </div>
+    </mat-card>
+
+    <!-- ✅ Consistent content section styling -->
+    <div class="download-content-section" style="margin-top: 24px;">
+        <mat-card appearance="outlined" style="padding: 24px; border-radius: 16px;">
+            <h3>What is the CLM Agent?</h3>
+            <p style="color: #475569; line-height: 1.6;">
+                The CLM Agent is a lightweight background service deployed on your infrastructure targets. It securely communicates with the CLM server to discover local services, provision certificates, and enforce automated renewal policies.
+            </p>
+
+            <h3 style="margin-top: 24px;">Operating System Binary</h3>
+            <p style="color: #475569; line-height: 1.6;">
+                Select your target platform below to download the latest agent release binaries directly from GitHub[cite: 32]:
+            </p>
+
+            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                <a mat-flat-button color="primary" href="https://github.com/your-username/clm/releases/latest/download/agent-linux" target="_blank">
+                    <mat-icon>download</mat-icon> Download Linux Agent
+                </a>
+                <a mat-stroked-button color="primary" href="https://github.com/your-username/clm/releases/latest/download/agent.exe" target="_blank">
+                    <mat-icon>download</mat-icon> Download Windows Agent
+                </a>
+            </div>
+            <h3 style="margin-top: 24px;">Installation</h3>
+            <p style="color: #475569; line-height: 1.6;">
+                Select your target platform below to download the latest agent release binaries directly from GitHub[cite: 32]:
+            </p>
+
+        </mat-card>
+    </div>
+</div>

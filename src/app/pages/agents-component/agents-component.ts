@@ -1,4 +1,4 @@
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import {Component, computed, inject, OnInit, signal, TemplateRef, ViewChild} from '@angular/core';
 import { AgentsService } from '../../services/agents-service';
 import {
@@ -32,6 +32,7 @@ import {MatIconModule} from '@angular/material/icon';
         NgOptimizedImage,
         MatCardModule,
         MatIconModule,
+        RouterLink,
     ],
     styleUrls: ['./agents-component.scss'],
     standalone: true

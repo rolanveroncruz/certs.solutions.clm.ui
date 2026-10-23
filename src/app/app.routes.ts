@@ -5,6 +5,7 @@ import {DashboardComponent} from './pages/dashboard-component/dashboard-componen
 import {DiscoveriesComponent} from './pages/discoveries-component/discoveries-component';
 import {AgentsComponent} from './pages/agents-component/agents-component';
 import { ChangePassword} from './components/change-password/change-password';
+import {AgentDownloadPage} from './pages/agents-component/agent-download-page/agent-download-page';
 
 export const routes: Routes = [
   { path: '',  pathMatch: 'full', component:LoginComponent},
@@ -15,7 +16,8 @@ export const routes: Routes = [
     {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
     {path: 'dashboard', component: DashboardComponent},
     {path: 'discoveries', component: DiscoveriesComponent},
-    {path: 'agents', component: AgentsComponent}
-    ]
-  },
+    {path: 'agents', component: AgentsComponent},
+      {path: 'agents/download', component: AgentDownloadPage},
+
+    ]}
 ];

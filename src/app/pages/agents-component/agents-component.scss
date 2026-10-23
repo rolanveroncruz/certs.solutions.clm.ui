@@ -37,11 +37,35 @@
         margin-bottom: 24px; // ✅ Ensures plenty of breathing room before the action button
     }
 
+    .hero-link {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1976d2; // Matches your primary theme color
+        text-decoration: none;
+        padding: 8px 16px;
+        background-color: rgba(25, 118, 210, 0.08); // Subtle background tint
+        border-radius: 999px; // Pill shape to match your other badges/buttons
+        transition: background-color 0.2s ease, color 0.2s ease;
+
+        &:hover {
+            background-color: rgba(25, 118, 210, 0.16);
+            color: #115293;
+            text-decoration: none;
+        }
+
+        &:active {
+            transform: translateY(1px);
+        }
+
+    }
     .hero-actions {
         // Optional: Ensures the button aligns nicely
         display: flex;
         align-items: center;
     }
+
 }
 
 .agents-container {
