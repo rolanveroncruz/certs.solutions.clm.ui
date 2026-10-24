@@ -19,26 +19,41 @@
         <mat-card appearance="outlined" style="padding: 24px; border-radius: 16px;">
             <h3>What is the CLM Agent?</h3>
             <p style="color: #475569; line-height: 1.6;">
-                The CLM Agent is a lightweight background service deployed on your infrastructure targets. It securely communicates with the CLM server to discover local services, provision certificates, and enforce automated renewal policies.
+                The CLM Agent is a lightweight background service deployed on your infrastructure targets. It discovers local services, provision and certificates, and
+                communicates these securely to the CLM Server.  It also enforces automated renewal policies.
+            </p>
+            <p style="color: #475569; line-height: 1.6;">
+                The CLM Agent is designed to run as a system service on your infrastructure targets.
             </p>
 
             <h3 style="margin-top: 24px;">Operating System Binary</h3>
             <p style="color: #475569; line-height: 1.6;">
-                Select your target platform below to download the latest agent release binaries directly from GitHub[cite: 32]:
+                Select your target platform below to download the latest agent release binaries:
             </p>
 
             <div style="display: flex; gap: 12px; margin-top: 16px;">
-                <a mat-flat-button color="primary" href="https://github.com/your-username/clm/releases/latest/download/agent-linux" target="_blank">
+                <a mat-flat-button color="primary" href="https://downloads.certs.solutions/downloads/latest-agent" target="_blank">
                     <mat-icon>download</mat-icon> Download Linux Agent
                 </a>
-                <a mat-stroked-button color="primary" href="https://github.com/your-username/clm/releases/latest/download/agent.exe" target="_blank">
-                    <mat-icon>download</mat-icon> Download Windows Agent
+                <a mat-flat-button color="primary" href="https://downloads.certs.solutions/downloads/latest-sha" target="_blank">
+                    <mat-icon>download</mat-icon> Download Linux Agent SHA-256 checksum
+                </a>
+                <a mat-stroked-button color="primary" href="https://github.com/your-username/clm/releases/latest/download/agent.exe" target="_blank" disabled>
+                    <mat-icon>download</mat-icon> Download Windows Agent (under construction)
                 </a>
             </div>
-            <h3 style="margin-top: 24px;">Installation</h3>
-            <p style="color: #475569; line-height: 1.6;">
-                Select your target platform below to download the latest agent release binaries directly from GitHub[cite: 32]:
-            </p>
+            <h3 style="margin-top: 24px;">Linux Installation</h3>
+                <ol style="color: #475569; line-height: 1.6;">
+                    <li>
+                        Download the agent binary( agent-linux-vXXXX) and its SHA-256(agent-linux-vXXXX.sha256) checksum.
+                    </li>
+                    <li>
+                        Check the binary against its SHA256 checksum: <span> sha256sum -c agent-linux-vXXX.sha256</span>
+                    </li>
+                    <li>
+                        Run the agent as a system service.
+                    </li>
+                </ol>
 
         </mat-card>
     </div>
