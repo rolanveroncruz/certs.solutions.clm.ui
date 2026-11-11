@@ -75,13 +75,16 @@
     <div class="cell-with-stale">
         <span class="cell-text">{{ row.serviceName }}</span>
         @if (row.serviceStale) {
-            <span
+            <button
+                type="button"
                 class="stale-badge"
-                [matTooltip]="row.serviceStaleSince ? ('Stale since: ' + (row.serviceStaleSince | date:'MMM d, y, h:mm a')) : 'Stale'"
-                matTooltipPosition="above">
+                [matTooltip]="(row.serviceStaleSince ? ('Stale since: ' + (row.serviceStaleSince | date:'MMM d, y, h:mm a')) : 'Stale') + ' - Click to delete'"
+                matTooltipPosition="above"
+                (click)="deleteStaleService(row); $event.stopPropagation()">
                 <mat-icon class="stale-icon">warning_amber</mat-icon>
-                STALE
-            </span>
+                <span>STALE</span>
+                <mat-icon class="delete-icon">delete</mat-icon>
+            </button>
         }
     </div>
 </ng-template>
@@ -90,13 +93,16 @@
     <div class="cell-with-stale">
         <span class="cell-text">{{ row.domainName }}</span>
         @if (row.domainStale) {
-            <span
+            <button
+                type="button"
                 class="stale-badge"
-                [matTooltip]="row.domainStaleSince ? ('Stale since: ' + (row.domainStaleSince | date:'MMM d, y, h:mm a')) : 'Stale'"
-                matTooltipPosition="above">
+                [matTooltip]="(row.domainStaleSince ? ('Stale since: ' + (row.domainStaleSince | date:'MMM d, y, h:mm a')) : 'Stale') + ' - Click to delete'"
+                matTooltipPosition="above"
+                (click)="deleteStaleDomain(row); $event.stopPropagation()">
                 <mat-icon class="stale-icon">warning_amber</mat-icon>
-                STALE
-            </span>
+                <span>STALE</span>
+                <mat-icon class="delete-icon">delete</mat-icon>
+            </button>
         }
     </div>
 </ng-template>
@@ -105,13 +111,16 @@
     <div class="cell-with-stale">
         <span class="cell-text">{{ row.Issuer ?? '' }}</span>
         @if (row.certStale) {
-            <span
+            <button
+                type="button"
                 class="stale-badge"
-                [matTooltip]="row.certStaleSince ? ('Stale since: ' + (row.certStaleSince | date:'MMM d, y, h:mm a')) : 'Stale'"
-                matTooltipPosition="above">
+                [matTooltip]="(row.certStaleSince ? ('Stale since: ' + (row.certStaleSince | date:'MMM d, y, h:mm a')) : 'Stale') + ' - Click to delete'"
+                matTooltipPosition="above"
+                (click)="deleteStaleCertDeployment(row); $event.stopPropagation()">
                 <mat-icon class="stale-icon">warning_amber</mat-icon>
-                STALE
-            </span>
+                <span>STALE</span>
+                <mat-icon class="delete-icon">delete</mat-icon>
+            </button>
         }
     </div>
 </ng-template>

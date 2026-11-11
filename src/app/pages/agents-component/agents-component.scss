@@ -435,7 +435,7 @@
 .stale-badge {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
     padding: 2px 6px;
     border-radius: 4px;
     background-color: #fef2f2;
@@ -444,10 +444,11 @@
     font-size: 0.7rem;
     font-weight: 700;
     line-height: 1;
-    cursor: help;
+    cursor: pointer;
     user-select: none;
     letter-spacing: 0.5px;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
+    font-family: inherit;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 
     .stale-icon {
         font-size: 14px;
@@ -458,9 +459,30 @@
         line-height: 14px;
     }
 
+    .delete-icon {
+        font-size: 13px;
+        width: 13px;
+        height: 13px;
+        color: #991b1b;
+        vertical-align: middle;
+        line-height: 13px;
+        opacity: 0.75;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+
     &:hover {
         background-color: #fee2e2;
         border-color: #f87171;
+        box-shadow: 0 1px 3px rgba(185, 28, 28, 0.15);
+
+        .delete-icon {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+    }
+
+    &:active {
+        transform: translateY(1px);
     }
 }
 

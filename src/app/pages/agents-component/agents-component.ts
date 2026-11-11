@@ -347,4 +347,67 @@ export class AgentsComponent implements OnInit {
                 break;
         }
     }
+
+    deleteStaleService(row: AgentCertificateRowFlat): void {
+        const serviceId = row.serviceId;
+        if (!serviceId) return;
+
+        const confirmMsg = 'Deleting a stale service will also delete stale domains and certificate deployments. Are you sure you want to delete this stale service?';
+        if (!confirm(confirmMsg)) {
+            return;
+        }
+
+        this.agentsService.deleteStaleService(serviceId).subscribe({
+            next: () => {
+                this.loadAgents();
+            },
+            error: (err) => {
+                console.error('Failed to delete stale service', err);
+                alert(err.message || 'Failed to delete stale service');
+                this.loadAgents();
+            }
+        });
+    }
+
+    deleteStaleDomain(row: AgentCertificateRowFlat): void {
+        const domainId = row.domainId || row.domainName;
+        if (!domainId) return;
+
+        const confirmMsg = 'Deleting a stale domain will delete the associated certificate deployment. Are you sure you want to delete this stale domain?';
+        if (!confirm(confirmMsg)) {
+            return;
+        }
+
+        this.agentsService.deleteStaleDomain(domainId).subscribe({
+            next: () => {
+                this.loadAgents();
+            },
+            error: (err) => {
+                console.error('Failed to delete stale domain', err);
+                alert(err.message || 'Failed to delete stale domain');
+                this.loadAgents();
+            }
+        });
+    }
+
+    deleteStaleCertDeployment(row: AgentCertificateRowFlat): void {
+        const deploymentId = row.deploymentId || row.registryCertificateId || row.certPath;
+        if (!deploymentId) return;
+
+        const confirmMsg = 'Are you sure you want to delete this stale certificate deployment?';
+        if (!confirm(confirmMsg)) {
+            return;
+        }
+
+        this.agentsService.deleteStaleCertDeployment(deploymentId).subscribe({
+            next: () => {
+                this.loadAgents();
+            },
+            error: (err) => {
+                console.error('Failed to delete stale certificate deployment', err);
+                alert(err.message || 'Failed to delete stale certificate deployment');
+                this.loadAgents();
+            }
+        });
+    }
 }

@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
+import { Observable, map, catchError, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {LoginService} from './login-service';
 import {AgentCertificateRowFlat, AgentResponse, DomainData, ServiceData} from './agents.model';
@@ -22,6 +22,7 @@ export interface GenerateEnrollmentTokenResponse{
 export class AgentsService {
     // Assuming your API base path is defined in environment
     private readonly apiUrl = `${environment.apiBaseUrl}/agents`;
+    private readonly staleApiUrl = `${environment.apiBaseUrl}/stale`;
     private readonly loginService =inject(LoginService);
 
     constructor(private http: HttpClient) {
@@ -94,11 +95,13 @@ export class AgentsService {
                                 serviceStale: service.stale ?? false,
                                 serviceStaleSince: service.stale_since ?? null,
 
+                                domainId: (domain as any).domain_id ?? (domain as any).id ?? domain.domain_name,
                                 domainName: domain.domain_name,
                                 domainLastSeen: domain.last_seen,
                                 domainStale: domain.stale ?? false,
                                 domainStaleSince: domain.stale_since ?? null,
 
+                                deploymentId: (domain.certificate as any)?.deployment_id ?? (domain.certificate as any)?.id ?? domain.certificate?.registry_certificate_id ?? domain.certificate?.cert_path ?? null,
                                 certPath: domain.certificate?.cert_path ?? null,
                                 Issuer: domain.certificate?.issuer ?? null,
                                 certExpiry: domain.certificate?.expiry ?? null,
@@ -137,11 +140,13 @@ export class AgentsService {
             serviceStale: service?.stale ?? false,
             serviceStaleSince: service?.stale_since ?? null,
             // 🟩
+            domainId: (domain as any)?.domain_id ?? (domain as any)?.id ?? domain?.domain_name ?? '',
             domainName: domain?.domain_name ?? '(No Endpoints Discovered)', // 🟩
             domainLastSeen: domain?.last_seen ?? '', // 🟩
             domainStale: domain?.stale ?? false,
             domainStaleSince: domain?.stale_since ?? null,
             // 🟩
+            deploymentId: null,
             certPath: null, // 🟩
             Issuer: null, // 🟩
             certExpiry: null, // 🟩
@@ -174,5 +179,55 @@ export class AgentsService {
             });
         });
         return certs;
+    }
+
+    private handleStaleDeleteError(err: HttpErrorResponse, entityType: string): Observable<never> {
+        let message: string;
+        if (err.status === 409) {
+            message = (typeof err.error === 'string' && err.error) || `The ${entityType} is no longer stale and cannot be deleted.`;
+        } else if (err.status === 404) {
+            message = (typeof err.error === 'string' && err.error) || `The ${entityType} was not found or has already been removed.`;
+        } else {
+            message = (typeof err.error === 'string' && err.error) || err.error?.message || `Failed to delete stale ${entityType}.`;
+        }
+        console.error(`Failed to delete stale ${entityType} (${err.status}):`, message, err);
+        const error = new Error(message);
+        (error as any).status = err.status;
+        (error as any).error = err.error;
+        return throwError(() => error);
+    }
+
+    // DELETE /api/v1/stale/services/{service_id}
+    // Deletes one stale service. Its ports, domains and deployments are removed with it.
+    deleteStaleService(service_id: string): Observable<void> {
+        return this.http.delete<void>(
+            `${this.staleApiUrl}/services/${encodeURIComponent(service_id)}`,
+            { headers: this.authHeaders() }
+        ).pipe(
+            catchError((err: HttpErrorResponse) => this.handleStaleDeleteError(err, 'service'))
+        );
+    }
+
+    // DELETE /api/v1/stale/domains/{domain_id}
+    // Deletes one stale domain, plus the stale deployments of the same service
+    // whose server_name equals the domain name.
+    deleteStaleDomain(domain_id: string): Observable<void> {
+        return this.http.delete<void>(
+            `${this.staleApiUrl}/domains/${encodeURIComponent(domain_id)}`,
+            { headers: this.authHeaders() }
+        ).pipe(
+            catchError((err: HttpErrorResponse) => this.handleStaleDeleteError(err, 'domain'))
+        );
+    }
+
+    // DELETE /api/v1/stale/deployments/{deployment_id}
+    // Deletes one stale certificate deployment and nothing else.
+    deleteStaleCertDeployment(deployment_id: string): Observable<void> {
+        return this.http.delete<void>(
+            `${this.staleApiUrl}/deployments/${encodeURIComponent(deployment_id)}`,
+            { headers: this.authHeaders() }
+        ).pipe(
+            catchError((err: HttpErrorResponse) => this.handleStaleDeleteError(err, 'certificate deployment'))
+        );
     }
 }

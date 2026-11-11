@@ -1,4 +1,6 @@
 export interface CertDeployment {
+    id?: string;
+    deployment_id?: string;
     cert_path: string;
     issuer: string;
     expiry: string; // Go time.Time becomes ISO string in JSON
@@ -17,6 +19,8 @@ export interface CertDeployment {
 }
 
 export interface DomainData {
+    id?: string;
+    domain_id?: string;
     domain_name: string;
     last_seen: string; // Go time.Time becomes ISO string in JSON
     stale: boolean;
@@ -54,12 +58,14 @@ export interface AgentCertificateRowFlat {
     serviceStaleSince: string | null;
 
     // --- Domain Fields ---
+    domainId?: string;
     domainName: string;
     domainLastSeen: string; // ISO Date String
     domainStale: boolean;
     domainStaleSince: string | null;
 
     // --- Certificate Deployment Fields (Nullable if no cert exists) ---
+    deploymentId?: string | null;
     certPath: string | null;
     Issuer: string | null;
     certExpiry: string | null; // ISO Date String
