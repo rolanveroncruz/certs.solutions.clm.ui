@@ -8,6 +8,7 @@ export interface TableColumn<T extends object = any> {
     minWidthPx?: number; // minimum width in pixels
     maxWidthPx?: number; // maximum width in pixels
     cellTemplateKey?: TableCellTemplateKey; // e.g. 'chips', 'date', 'money', etc.
+    customCellTemplate?: TemplateRef<any>;
     actionButtons?: TableActionButton<T>[];
 }
 

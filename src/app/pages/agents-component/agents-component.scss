@@ -421,3 +421,46 @@
     }
 }
 
+.cell-with-stale {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    .cell-text {
+        color: inherit;
+    }
+}
+
+.stale-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: help;
+    user-select: none;
+    letter-spacing: 0.5px;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+
+    .stale-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        color: #dc2626;
+        vertical-align: middle;
+        line-height: 14px;
+    }
+
+    &:hover {
+        background-color: #fee2e2;
+        border-color: #f87171;
+    }
+}
+

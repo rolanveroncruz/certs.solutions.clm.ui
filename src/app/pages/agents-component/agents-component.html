@@ -70,3 +70,48 @@
         <span class="btn-label">Manage</span>
     </button>
 </ng-template>
+
+<ng-template #ServiceCell let-row>
+    <div class="cell-with-stale">
+        <span class="cell-text">{{ row.serviceName }}</span>
+        @if (row.serviceStale) {
+            <span
+                class="stale-badge"
+                [matTooltip]="row.serviceStaleSince ? ('Stale since: ' + (row.serviceStaleSince | date:'MMM d, y, h:mm a')) : 'Stale'"
+                matTooltipPosition="above">
+                <mat-icon class="stale-icon">warning_amber</mat-icon>
+                STALE
+            </span>
+        }
+    </div>
+</ng-template>
+
+<ng-template #DomainCell let-row>
+    <div class="cell-with-stale">
+        <span class="cell-text">{{ row.domainName }}</span>
+        @if (row.domainStale) {
+            <span
+                class="stale-badge"
+                [matTooltip]="row.domainStaleSince ? ('Stale since: ' + (row.domainStaleSince | date:'MMM d, y, h:mm a')) : 'Stale'"
+                matTooltipPosition="above">
+                <mat-icon class="stale-icon">warning_amber</mat-icon>
+                STALE
+            </span>
+        }
+    </div>
+</ng-template>
+
+<ng-template #IssuerCell let-row>
+    <div class="cell-with-stale">
+        <span class="cell-text">{{ row.Issuer ?? '' }}</span>
+        @if (row.certStale) {
+            <span
+                class="stale-badge"
+                [matTooltip]="row.certStaleSince ? ('Stale since: ' + (row.certStaleSince | date:'MMM d, y, h:mm a')) : 'Stale'"
+                matTooltipPosition="above">
+                <mat-icon class="stale-icon">warning_amber</mat-icon>
+                STALE
+            </span>
+        }
+    </div>
+</ng-template>

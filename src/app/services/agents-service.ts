@@ -91,9 +91,13 @@ export class AgentsService {
 
                                 serviceId: service.service_id,
                                 serviceName: service.name,
+                                serviceStale: service.stale ?? false,
+                                serviceStaleSince: service.stale_since ?? null,
 
                                 domainName: domain.domain_name,
                                 domainLastSeen: domain.last_seen,
+                                domainStale: domain.stale ?? false,
+                                domainStaleSince: domain.stale_since ?? null,
 
                                 certPath: domain.certificate?.cert_path ?? null,
                                 Issuer: domain.certificate?.issuer ?? null,
@@ -108,6 +112,8 @@ export class AgentsService {
                                 scheduledRenewalDate: domain.certificate?.scheduled_renewal_date ?? null,
                                 providerId: domain.certificate?.provider_id ?? null,
                                 providerName: domain.certificate?.provider_name ?? null,
+                                certStale: domain.certificate?.stale ?? false,
+                                certStaleSince: domain.certificate?.stale_since ?? null,
                             });
                         }
                     }
@@ -128,9 +134,13 @@ export class AgentsService {
             // 🟩
             serviceId: service?.service_id ?? '', // 🟩
             serviceName: service?.name ?? '(No Active Services)', // 🟩
+            serviceStale: service?.stale ?? false,
+            serviceStaleSince: service?.stale_since ?? null,
             // 🟩
             domainName: domain?.domain_name ?? '(No Endpoints Discovered)', // 🟩
             domainLastSeen: domain?.last_seen ?? '', // 🟩
+            domainStale: domain?.stale ?? false,
+            domainStaleSince: domain?.stale_since ?? null,
             // 🟩
             certPath: null, // 🟩
             Issuer: null, // 🟩
@@ -145,6 +155,8 @@ export class AgentsService {
             scheduledRenewalDate: null, // 🟩
             providerId: null,
             providerName: null,
+            certStale: false,
+            certStaleSince: null,
         }; // 🟩
     } // 🟩
 // Inside agents-service.ts

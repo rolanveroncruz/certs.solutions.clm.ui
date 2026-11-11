@@ -257,7 +257,9 @@ export class GenericDataTableComponent<T extends object> implements AfterViewIni
     return null;
   }
   getCellTemplate(col:TableColumn<T>): TemplateRef<any>{
-
+    if (col.customCellTemplate) {
+      return col.customCellTemplate;
+    }
     switch(col.cellTemplateKey){
       case 'date': return this.dateCell;
       case 'datetime': return this.dateTimeCell;

@@ -19,19 +19,22 @@ import {MatDialog} from '@angular/material/dialog';
 import {RenewalConfigurationService} from '../../services/renewal-configuration-service';
 import {GenericDataTableComponent} from '../../components/generic-data-table-component/generic-data-table-component';
 import {TableColumn} from '../../components/generic-data-table-component/table-interfaces';
-import {NgOptimizedImage} from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 
 @Component({
     selector: 'app-agents',
     templateUrl: './agents-component.html',
     imports: [
+        CommonModule,
         GenericDataTableComponent,
         NgOptimizedImage,
         MatCardModule,
         MatIconModule,
+        MatTooltipModule,
         RouterLink,
     ],
     styleUrls: ['./agents-component.scss'],
@@ -48,6 +51,9 @@ export class AgentsComponent implements OnInit {
     @ViewChild('RenewBtn', { static: true }) RenewBtn!: TemplateRef<any>;
     @ViewChild('RequestBtn', { static: true }) RequestBtn!: TemplateRef<any>;
     @ViewChild('ManageBtn', { static: true }) ManageBtn!: TemplateRef<any>;
+    @ViewChild('ServiceCell', { static: true }) ServiceCell!: TemplateRef<any>;
+    @ViewChild('DomainCell', { static: true }) DomainCell!: TemplateRef<any>;
+    @ViewChild('IssuerCell', { static: true }) IssuerCell!: TemplateRef<any>;
 
     loading = signal(false);
     agents = signal<AgentResponse[]>([]);
@@ -139,10 +145,10 @@ export class AgentsComponent implements OnInit {
                 ]},
             { key: 'hostname', label: 'Host / Agent', sortable: true },
             { key: 'isOnline', label: 'Online', cellTemplateKey: 'check', sortable: true },
-            { key: 'serviceName', label: 'Service', sortable: true },
+            { key: 'serviceName', label: 'Service', sortable: true, customCellTemplate: this.ServiceCell },
             { key: 'providerName', label: 'CA', sortable: true },
-            { key: 'domainName', label: 'Domain / Endpoint', sortable: true },
-            { key: 'Issuer', label: 'Issuer', sortable: true },
+            { key: 'domainName', label: 'Domain / Endpoint', sortable: true, customCellTemplate: this.DomainCell },
+            { key: 'Issuer', label: 'Issuer', sortable: true, customCellTemplate: this.IssuerCell },
             { key: 'certExpiry', label: 'Expiration', cellTemplateKey: 'date', sortable: true },
             { key: 'certIsPresent', label: 'Present', cellTemplateKey: 'check', sortable: true },
             { key: 'certIsManaged', label: 'Managed', cellTemplateKey: 'check', sortable: true },

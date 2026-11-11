@@ -12,17 +12,23 @@ export interface CertDeployment {
     scheduled_renewal_date: string | null;
     provider_id: string | null;
     provider_name: string | null;
+    stale: boolean;
+    stale_since: string | null;
 }
 
 export interface DomainData {
     domain_name: string;
     last_seen: string; // Go time.Time becomes ISO string in JSON
+    stale: boolean;
+    stale_since: string | null;
     certificate: CertDeployment | null;
 }
 
 export interface ServiceData {
     service_id: string;
     name: string;
+    stale: boolean;
+    stale_since: string | null;
     domains: DomainData[];
 }
 
@@ -44,10 +50,14 @@ export interface AgentCertificateRowFlat {
     // --- Service Fields ---
     serviceId: string;
     serviceName: string;
+    serviceStale: boolean;
+    serviceStaleSince: string | null;
 
     // --- Domain Fields ---
     domainName: string;
     domainLastSeen: string; // ISO Date String
+    domainStale: boolean;
+    domainStaleSince: string | null;
 
     // --- Certificate Deployment Fields (Nullable if no cert exists) ---
     certPath: string | null;
@@ -63,5 +73,7 @@ export interface AgentCertificateRowFlat {
     scheduledRenewalDate: string | null; // ISO Date String
     providerId: string | null;
     providerName: string | null;
+    certStale: boolean;
+    certStaleSince: string | null;
 }
 
