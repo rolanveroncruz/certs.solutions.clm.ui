@@ -16,6 +16,9 @@ export interface GenerateEnrollmentTokenResponse{
     expires_at: string;
     bootstrap_url: string;
 }
+export interface TriggerDiscoveryResponse{
+    command_id: string;
+}
 @Injectable({
     providedIn: 'root'
 })
@@ -89,6 +92,10 @@ export class AgentsService {
                                 agentIdentity: agent.agent_identity,
                                 hostname: agent.hostname,
                                 isOnline: agent.is_online,
+                                lastDiscoveryCompletedAt: agent.last_discovery_completed_at,
+                                lastDiscoveryRequestedAt: agent.last_discovery_requested_at,
+                                lastDiscoveryStatus: agent.last_discovery_status,
+                                lastSuccessfulDiscoveryAt: agent.last_successful_discovery_at,
 
                                 serviceId: service.service_id,
                                 serviceName: service.name,
@@ -116,7 +123,7 @@ export class AgentsService {
                                 providerId: domain.certificate?.provider_id ?? null,
                                 providerName: domain.certificate?.provider_name ?? null,
                                 certStale: domain.certificate?.stale ?? false,
-                                certStaleSince: domain.certificate?.stale_since ?? null,
+                                certStaleSince: domain.certificate?.stale_since ?? null
                             });
                         }
                     }
@@ -134,6 +141,10 @@ export class AgentsService {
             agentIdentity: agent.agent_identity, // 🟩
             hostname: agent.hostname, // 🟩
             isOnline: agent.is_online, // 🟩
+            lastDiscoveryCompletedAt: agent.last_discovery_completed_at,
+            lastDiscoveryRequestedAt: agent.last_discovery_requested_at,
+            lastDiscoveryStatus: agent.last_discovery_status,
+            lastSuccessfulDiscoveryAt: agent.last_successful_discovery_at,
             // 🟩
             serviceId: service?.service_id ?? '', // 🟩
             serviceName: service?.name ?? '(No Active Services)', // 🟩
@@ -195,6 +206,34 @@ export class AgentsService {
         (error as any).status = err.status;
         (error as any).error = err.error;
         return throwError(() => error);
+    }
+
+    // POST /api/v1/agents/{agent_id}/discover
+    // Queues a discovery scan on the agent (202 Accepted, {"command_id": "<uuid>"}).
+    // The scan runs asynchronously, so re-fetch the agents list afterwards to see the results.
+    // Errors come back as plain-text bodies: 400 invalid id, 404 unknown agent,
+    // 409 agent not connected, 503 command queue full, 500 lookup failed.
+    triggerDiscovery(agent_id: string): Observable<TriggerDiscoveryResponse> {
+        return this.http.post<TriggerDiscoveryResponse>(
+            `${this.apiUrl}/${encodeURIComponent(agent_id)}/discover`,
+            null,
+            { headers: this.authHeaders() }
+        ).pipe(
+            catchError((err: HttpErrorResponse) => {
+                let fallback: string;
+                switch (err.status) {
+                    case 404: fallback = 'Agent not found'; break;
+                    case 409: fallback = 'Agent is not connected'; break;
+                    case 503: fallback = 'Agent queue is full, try again shortly'; break;
+                    default: fallback = 'Failed to request discovery';
+                }
+                const message = (typeof err.error === 'string' && err.error.trim()) || fallback;
+                console.error(`Failed to trigger discovery (${err.status}):`, message, err);
+                const error = new Error(message);
+                (error as any).status = err.status;
+                return throwError(() => error);
+            })
+        );
     }
 
     // DELETE /api/v1/stale/services/{service_id}

@@ -1,5 +1,6 @@
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {Component, computed, inject, OnInit, signal, TemplateRef, ViewChild} from '@angular/core';
+import {Component, computed, inject, OnDestroy, OnInit, signal, TemplateRef, ViewChild} from '@angular/core';
+import {catchError, forkJoin, map, of} from 'rxjs';
 import { AgentsService } from '../../services/agents-service';
 import {
     AgentResponse,
@@ -23,6 +24,19 @@ import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatButtonModule} from '@angular/material/button';
+import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
+import {
+    DiscoveryPickerDialogComponent,
+    DiscoveryPickerDialogData,
+    DiscoveryPickerDialogResult
+} from './discovery-picker-dialog-component/discovery-picker-dialog-component';
+import {parseApiDate, timeAgo} from '../../utils/time-ago';
+
+// How long the banner counts down before each refresh while waiting for discovery to finish
+const DISCOVERY_REFRESH_SECONDS = 15;
+// Stop waiting for discovery to finish after this long
+const DISCOVERY_MAX_WAIT_MS = 5 * 60 * 1000;
 
 
 @Component({
@@ -35,22 +49,26 @@ import {MatTooltipModule} from '@angular/material/tooltip';
         MatCardModule,
         MatIconModule,
         MatTooltipModule,
+        MatButtonModule,
+        MatSnackBarModule,
         RouterLink,
     ],
     styleUrls: ['./agents-component.scss'],
     standalone: true
 })
-export class AgentsComponent implements OnInit {
+export class AgentsComponent implements OnInit, OnDestroy {
     private readonly route = inject(ActivatedRoute);
     private readonly loginService = inject(LoginService);
     private readonly certsService = inject(CertsService);
     private readonly renewalConfigService = inject(RenewalConfigurationService);
     private readonly dialog=inject(MatDialog);
     private readonly agentsService = inject(AgentsService);
+    private readonly snackBar = inject(MatSnackBar);
 
     @ViewChild('RenewBtn', { static: true }) RenewBtn!: TemplateRef<any>;
     @ViewChild('RequestBtn', { static: true }) RequestBtn!: TemplateRef<any>;
     @ViewChild('ManageBtn', { static: true }) ManageBtn!: TemplateRef<any>;
+    @ViewChild('HostCell', { static: true }) HostCell!: TemplateRef<any>;
     @ViewChild('ServiceCell', { static: true }) ServiceCell!: TemplateRef<any>;
     @ViewChild('DomainCell', { static: true }) DomainCell!: TemplateRef<any>;
     @ViewChild('IssuerCell', { static: true }) IssuerCell!: TemplateRef<any>;
@@ -83,6 +101,17 @@ export class AgentsComponent implements OnInit {
         })
 
     })
+
+    // State of a discovery we are waiting on. The banner counts down, refreshes, and repeats until all agents finish.
+    private discoveryTimerId: ReturnType<typeof setInterval> | null = null;
+    private discoveryWatch: { baseline: Map<string, string>; pending: Set<string>; total: number; startedAt: number } | null = null;
+    discoveryProgress = signal({
+        visible: false,
+        secondsLeft: 0,
+        refreshing: false,
+        pendingCount: 0,
+        totalCount: 0,
+    });
 
     private progressTimerId: ReturnType<typeof setInterval> |null = null;
     requestProgress = signal({
@@ -143,7 +172,7 @@ export class AgentsComponent implements OnInit {
                         }
                     },
                 ]},
-            { key: 'hostname', label: 'Host / Agent', sortable: true },
+            { key: 'hostname', label: 'Host / Agent', sortable: true, customCellTemplate: this.HostCell },
             { key: 'isOnline', label: 'Online', cellTemplateKey: 'check', sortable: true },
             { key: 'serviceName', label: 'Service', sortable: true, customCellTemplate: this.ServiceCell },
             { key: 'providerName', label: 'CA', sortable: true },
@@ -158,20 +187,34 @@ export class AgentsComponent implements OnInit {
         this.loadAgents();
     }
 
-    loadAgents(): void {
+    ngOnDestroy(): void {
+        this.stopDiscoveryWatch();
+        if (this.progressTimerId) {
+            clearInterval(this.progressTimerId);
+            this.progressTimerId = null;
+        }
+    }
+
+    // When `silent` is true the table stays visible instead of switching to the loader.
+    // `onLoaded` receives the agents, or null when the request failed.
+    loadAgents(silent = false, onLoaded?: (agents: AgentResponse[] | null) => void): void {
         const clientId = this.loginService.clientId();
 
-        this.loading.set(true);
+        if (!silent) {
+            this.loading.set(true);
+        }
 
         // Fetch raw objects for card view
         this.agentsService.listAgents(clientId).subscribe({
             next: (data) => {
                 this.agents.set(data);
                 this.loading.set(false);
+                onLoaded?.(data);
             },
             error: (err) => {
                 console.error('Failed to load agents', err);
                 this.loading.set(false);
+                onLoaded?.(null);
             },
         });
 
@@ -317,6 +360,166 @@ export class AgentsComponent implements OnInit {
             visible: false,
             secondsLeft: 0,
             messageIndex: 0,
+        });
+    }
+
+    // Builds the tooltip text showing how long ago the agent's last successful discovery was
+    lastDiscoveryTooltip(row: AgentCertificateRowFlat): string {
+        const date = parseApiDate(row.lastSuccessfulDiscoveryAt);
+        return `Last successful discovery: ${date ? timeAgo(date) : 'Never'}`;
+    }
+
+    // Opens the picker, then asks each selected agent to run discovery
+    openDiscoveryPicker(): void {
+        const dialogRef = this.dialog.open<
+            DiscoveryPickerDialogComponent,
+            DiscoveryPickerDialogData,
+            DiscoveryPickerDialogResult
+        >(DiscoveryPickerDialogComponent, {
+            width: '520px',
+            maxWidth: '95vw',
+            data: { agents: this.agents() },
+        });
+
+        dialogRef.afterClosed().subscribe(agentIds => {
+            if (agentIds && agentIds.length > 0) {
+                this.runDiscovery(agentIds);
+            }
+        });
+    }
+
+    private runDiscovery(agentIds: string[]): void {
+        const agents = this.agents();
+        // Remember each agent's last completion time so we can tell when a new discovery has finished
+        const baseline = new Map<string, string>(
+            agentIds.map(id => [id, agents.find(a => a.id === id)?.last_discovery_completed_at ?? ''])
+        );
+
+        forkJoin(agentIds.map(id =>
+            this.agentsService.triggerDiscovery(id).pipe(
+                map(() => ({ id, error: null as string | null })),
+                catchError((err: Error) => of({ id, error: err.message || 'Failed to request discovery' }))
+            )
+        )).subscribe(results => {
+            const succeeded = results.filter(r => !r.error);
+            const failed = results.filter(r => r.error);
+            const hostname = (id: string) => agents.find(a => a.id === id)?.hostname ?? id;
+            const plural = (n: number) => `${n} agent${n === 1 ? '' : 's'}`;
+
+            if (succeeded.length === 0) {
+                const details = failed.map(r => `${hostname(r.id)}: ${r.error}`).join('; ');
+                this.snackBar.open(`Discovery could not be requested (${details})`, 'Dismiss', { duration: 8000 });
+                return;
+            }
+
+            if (failed.length === 0) {
+                this.snackBar.open(`Discovery requested for ${plural(succeeded.length)}.`, 'OK', { duration: 5000 });
+            } else {
+                const details = failed.map(r => `${hostname(r.id)}: ${r.error}`).join('; ');
+                this.snackBar.open(
+                    `Discovery requested for ${succeeded.length} of ${agentIds.length} agents (${details})`,
+                    'Dismiss',
+                    { duration: 8000 }
+                );
+            }
+
+            this.startDiscoveryWatch(succeeded.map(r => r.id), baseline);
+        });
+    }
+
+    private startDiscoveryWatch(agentIds: string[], baseline: Map<string, string>): void {
+        this.stopDiscoveryWatch();
+        this.discoveryWatch = {
+            baseline,
+            pending: new Set(agentIds),
+            total: agentIds.length,
+            startedAt: Date.now(),
+        };
+        this.startDiscoveryCountdown();
+    }
+
+    private startDiscoveryCountdown(): void {
+        const watch = this.discoveryWatch;
+        if (!watch) return;
+
+        this.clearDiscoveryTimer();
+        this.discoveryProgress.set({
+            visible: true,
+            secondsLeft: DISCOVERY_REFRESH_SECONDS,
+            refreshing: false,
+            pendingCount: watch.pending.size,
+            totalCount: watch.total,
+        });
+
+        this.discoveryTimerId = setInterval(() => {
+            const secondsLeft = this.discoveryProgress().secondsLeft - 1;
+            if (secondsLeft <= 0) {
+                this.refreshDiscovery();
+            } else {
+                this.discoveryProgress.update(p => ({ ...p, secondsLeft }));
+            }
+        }, 1000);
+    }
+
+    // Reloads the agents now (also used by the banner's "Refresh now" link) and repeats the countdown until done
+    refreshDiscovery(): void {
+        const watch = this.discoveryWatch;
+        if (!watch || this.discoveryProgress().refreshing) return;
+
+        this.clearDiscoveryTimer();
+        this.discoveryProgress.update(p => ({ ...p, secondsLeft: 0, refreshing: true }));
+
+        this.loadAgents(true, agents => {
+            // The watch may have been stopped while the request was in flight
+            if (this.discoveryWatch !== watch) return;
+
+            if (agents) {
+                for (const id of [...watch.pending]) {
+                    const agent = agents.find(a => a.id === id);
+                    const completedAt = agent?.last_discovery_completed_at ?? '';
+                    // Agent removed, or it reported a new completion time since we triggered it
+                    if (!agent || (parseApiDate(completedAt) && completedAt !== watch.baseline.get(id))) {
+                        watch.pending.delete(id);
+                    }
+                }
+            }
+
+            if (watch.pending.size === 0) {
+                this.stopDiscoveryWatch();
+                this.snackBar.open(
+                    `Discovery finished for ${watch.total} agent${watch.total === 1 ? '' : 's'}.`,
+                    'OK',
+                    { duration: 5000 }
+                );
+            } else if (Date.now() - watch.startedAt > DISCOVERY_MAX_WAIT_MS) {
+                this.stopDiscoveryWatch();
+                this.snackBar.open(
+                    `Discovery is taking longer than expected for ${watch.pending.size} agent${watch.pending.size === 1 ? '' : 's'}. Refresh the page later to see the results.`,
+                    'Dismiss',
+                    { duration: 10000 }
+                );
+            } else {
+                this.startDiscoveryCountdown();
+            }
+        });
+    }
+
+    private clearDiscoveryTimer(): void {
+        if (this.discoveryTimerId) {
+            clearInterval(this.discoveryTimerId);
+            this.discoveryTimerId = null;
+        }
+    }
+
+    private stopDiscoveryWatch(): void {
+        this.clearDiscoveryTimer();
+        this.discoveryWatch = null;
+        this.discoveryProgress.set({
+            visible: false,
+            secondsLeft: 0,
+            refreshing: false,
+            pendingCount: 0,
+            totalCount: 0,
         });
     }
 

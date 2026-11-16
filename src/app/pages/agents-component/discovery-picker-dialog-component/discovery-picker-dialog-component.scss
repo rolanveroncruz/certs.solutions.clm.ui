@@ -1,0 +1,54 @@
+.select-all {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.agent-rows {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #e2e8f0;
+}
+
+.agent-row {
+    padding: 6px 0;
+    border-bottom: 1px solid #e2e8f0;
+
+    &.offline {
+        opacity: 0.6;
+    }
+}
+
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: #94a3b8;
+
+    &.online {
+        background: #22c55e;
+    }
+}
+
+.hostname {
+    font-weight: 600;
+}
+
+.offline-label {
+    margin-left: 8px;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.last-discovery {
+    margin-left: 42px;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.empty {
+    padding: 12px 0;
+    color: #64748b;
+}

@@ -41,6 +41,10 @@ export interface AgentResponse {
     agent_identity: string;
     hostname: string;
     is_online: boolean;
+    last_discovery_requested_at: string;
+    last_discovery_completed_at: string;
+    last_successful_discovery_at: string;
+    last_discovery_status: string;
     services: ServiceData[];
 }
 
@@ -50,6 +54,10 @@ export interface AgentCertificateRowFlat {
     agentIdentity: string;
     hostname: string;
     isOnline: boolean;
+    lastDiscoveryRequestedAt: string;
+    lastDiscoveryCompletedAt: string;
+    lastSuccessfulDiscoveryAt: string;
+    lastDiscoveryStatus: string;
 
     // --- Service Fields ---
     serviceId: string;

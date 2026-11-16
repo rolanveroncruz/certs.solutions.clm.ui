@@ -11,6 +11,14 @@
             </div>
             <a routerLink="/main/agents/download" class="hero-link">Agent Download Page</a>
         </div>
+        <div class="hero-actions">
+            <button mat-flat-button color="primary" type="button"
+                    [disabled]="discoveryProgress().visible || agents().length === 0"
+                    (click)="openDiscoveryPicker()">
+                <mat-icon>radar</mat-icon>
+                Run Discovery
+            </button>
+        </div>
     </div>
     </mat-card>
 
@@ -20,6 +28,21 @@
                 {{ requestProgressMessages[requestProgress().messageIndex] }}
             </div>
             <div class="progress-spinner" aria-label="Processing"></div>
+        </div>
+    }
+
+    @if (discoveryProgress().visible) {
+        <div class="request-progress-banner">
+            <div class="progress-message">
+                Discovery in progress - waiting for {{ discoveryProgress().pendingCount }} of {{ discoveryProgress().totalCount }} agent{{ discoveryProgress().totalCount === 1 ? '' : 's' }}.
+                @if (discoveryProgress().refreshing) {
+                    Refreshing...
+                } @else {
+                    Refreshing in {{ discoveryProgress().secondsLeft }}s
+                }
+            </div>
+            <button mat-button type="button" [disabled]="discoveryProgress().refreshing" (click)="refreshDiscovery()">Refresh now</button>
+            <div class="progress-spinner" aria-label="Discovery in progress"></div>
         </div>
     }
 
@@ -69,6 +92,12 @@
              class="btn-image" />
         <span class="btn-label">Manage</span>
     </button>
+</ng-template>
+
+<ng-template #HostCell let-row>
+    <span class="cell-text"
+          [matTooltip]="lastDiscoveryTooltip(row)"
+          matTooltipPosition="above">{{ row.hostname }}</span>
 </ng-template>
 
 <ng-template #ServiceCell let-row>

@@ -3,6 +3,13 @@
     border-radius: 16px;
     background-color: #ffffff; // Assuming a white card background
 
+    .hero-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
     .hero-left {
         display: flex;
         flex-direction: column;
