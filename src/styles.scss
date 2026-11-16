@@ -37,3 +37,6 @@ body {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; overflow: hidden;}
+
+// Lets tooltips render line breaks ("\n") in their text
+.multiline-tooltip .mdc-tooltip__surface { white-space: pre-line; max-width: none; }

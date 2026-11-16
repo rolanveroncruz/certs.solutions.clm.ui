@@ -96,6 +96,9 @@ export class AgentsService {
                                 lastDiscoveryRequestedAt: agent.last_discovery_requested_at,
                                 lastDiscoveryStatus: agent.last_discovery_status,
                                 lastSuccessfulDiscoveryAt: agent.last_successful_discovery_at,
+                                mtlsCertIssuedAt: agent.mtls_cert_issued_at,
+                                mtlsCertExpiresAt: agent.mtls_cert_expires_at,
+                                mtlsCertDaysRemaining: agent.mtls_cert_days_remaining,
 
                                 serviceId: service.service_id,
                                 serviceName: service.name,
@@ -145,6 +148,9 @@ export class AgentsService {
             lastDiscoveryRequestedAt: agent.last_discovery_requested_at,
             lastDiscoveryStatus: agent.last_discovery_status,
             lastSuccessfulDiscoveryAt: agent.last_successful_discovery_at,
+            mtlsCertIssuedAt: agent.mtls_cert_issued_at,
+            mtlsCertExpiresAt: agent.mtls_cert_expires_at,
+            mtlsCertDaysRemaining: agent.mtls_cert_days_remaining,
             // 🟩
             serviceId: service?.service_id ?? '', // 🟩
             serviceName: service?.name ?? '(No Active Services)', // 🟩

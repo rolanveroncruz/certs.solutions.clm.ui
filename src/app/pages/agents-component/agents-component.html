@@ -97,6 +97,7 @@
 <ng-template #HostCell let-row>
     <span class="cell-text"
           [matTooltip]="lastDiscoveryTooltip(row)"
+          matTooltipClass="multiline-tooltip"
           matTooltipPosition="above">{{ row.hostname }}</span>
 </ng-template>
 

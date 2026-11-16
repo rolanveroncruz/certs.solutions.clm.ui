@@ -20,7 +20,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {RenewalConfigurationService} from '../../services/renewal-configuration-service';
 import {GenericDataTableComponent} from '../../components/generic-data-table-component/generic-data-table-component';
 import {TableColumn} from '../../components/generic-data-table-component/table-interfaces';
-import {CommonModule, NgOptimizedImage} from '@angular/common';
+import {CommonModule, formatDate, NgOptimizedImage} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -363,10 +363,21 @@ export class AgentsComponent implements OnInit, OnDestroy {
         });
     }
 
-    // Builds the tooltip text showing how long ago the agent's last successful discovery was
+    // Builds the tooltip text showing the agent's last successful discovery and its mTLS certificate expiration
     lastDiscoveryTooltip(row: AgentCertificateRowFlat): string {
         const date = parseApiDate(row.lastSuccessfulDiscoveryAt);
-        return `Last successful discovery: ${date ? timeAgo(date) : 'Never'}`;
+        const lines = [`Last successful discovery: ${date ? timeAgo(date) : 'Never'}`];
+
+        const expiresAt = parseApiDate(row.mtlsCertExpiresAt);
+        lines.push(`mTLS cert expires: ${expiresAt ? formatDate(expiresAt, 'MMM d, y, h:mm a', 'en-US') : 'Unknown'}`);
+
+        const days = row.mtlsCertDaysRemaining;
+        if (expiresAt && days !== null && days !== undefined) {
+            lines.push(days < 0
+                ? `mTLS cert expired ${Math.abs(days)} day${Math.abs(days) === 1 ? '' : 's'} ago`
+                : `mTLS cert days remaining: ${days}`);
+        }
+        return lines.join('\n');
     }
 
     // Opens the picker, then asks each selected agent to run discovery

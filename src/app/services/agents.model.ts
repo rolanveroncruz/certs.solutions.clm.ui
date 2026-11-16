@@ -45,6 +45,9 @@ export interface AgentResponse {
     last_discovery_completed_at: string;
     last_successful_discovery_at: string;
     last_discovery_status: string;
+    mtls_cert_issued_at: string;
+    mtls_cert_expires_at: string;
+    mtls_cert_days_remaining: number;
     services: ServiceData[];
 }
 
@@ -58,6 +61,9 @@ export interface AgentCertificateRowFlat {
     lastDiscoveryCompletedAt: string;
     lastSuccessfulDiscoveryAt: string;
     lastDiscoveryStatus: string;
+    mtlsCertIssuedAt: string;
+    mtlsCertExpiresAt: string;
+    mtlsCertDaysRemaining: number;
 
     // --- Service Fields ---
     serviceId: string;
