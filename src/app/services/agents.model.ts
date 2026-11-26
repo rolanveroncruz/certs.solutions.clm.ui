@@ -50,6 +50,13 @@ export interface AgentResponse {
     mtls_cert_days_remaining: number;
     services: ServiceData[];
 }
+export interface AgentHierarchy{
+    agents: AgentResponse[];
+    agent_count: number;
+    domain_count: number;
+    max_agents: number | null;
+    max_domains: number | null;
+}
 
 export interface AgentCertificateRowFlat {
     // --- Agent Fields ---

@@ -3,7 +3,7 @@ import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import { Observable, map, catchError, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {LoginService} from './login-service';
-import {AgentCertificateRowFlat, AgentResponse, DomainData, ServiceData} from './agents.model';
+import {AgentCertificateRowFlat, AgentHierarchy, AgentResponse, DomainData, ServiceData} from './agents.model';
 
 export interface GenerateEnrollmentTokenRequest{
     client_id: number;
@@ -41,8 +41,8 @@ export class AgentsService {
      * Fetches the list of all agents, including hardware info
      * and discovered services (mapped from HandleListAgents).
      */
-    listAgents(client_id:number): Observable<AgentResponse[]> {
-        return this.http.get<AgentResponse[]>
+    listAgents(client_id:number): Observable<AgentHierarchy> {
+        return this.http.get<AgentHierarchy>
         (
             `${this.apiUrl}`,
             {
@@ -69,7 +69,8 @@ export class AgentsService {
     }
     listAgentsAsRows(client_id: number): Observable<AgentCertificateRowFlat[]> {
         return this.listAgents(client_id).pipe(
-            map((agents: AgentResponse[]) => {
+            map((hierarchy: AgentHierarchy) => {
+                const agents = hierarchy.agents ?? [];
                 const rows: AgentCertificateRowFlat[] = [];
 
                 for (const agent of agents) {
@@ -273,6 +274,30 @@ export class AgentsService {
             { headers: this.authHeaders() }
         ).pipe(
             catchError((err: HttpErrorResponse) => this.handleStaleDeleteError(err, 'certificate deployment'))
+        );
+    }
+
+    // DELETE /api/v1/agents/{agent_id}
+    // 204 deleted, 400 invalid id, 401 unauthorized, 404 not found, 409 online/seen within 7 days/never seen, 500 failure.
+    deleteAgent(agent_id: string): Observable<void> {
+        return this.http.delete<void>(
+            `${this.apiUrl}/${encodeURIComponent(agent_id)}`,
+            { headers: this.authHeaders() }
+        ).pipe(
+            catchError((err: HttpErrorResponse) => {
+                const body = typeof err.error === 'string' && err.error ? err.error : '';
+                let message: string;
+                switch (err.status) {
+                    case 400: message = body || 'Invalid agent ID.'; break;
+                    case 401: message = body || 'You are not authorized to delete this agent.'; break;
+                    case 404: message = body || 'Agent not found or already removed.'; break;
+                    case 409: message = body || 'Agent cannot be deleted: it is online or was seen within the last 7 days.'; break;
+                    default: message = body || 'Failed to delete agent.';
+                }
+                const error = new Error(message);
+                (error as any).status = err.status;
+                return throwError(() => error);
+            })
         );
     }
 }

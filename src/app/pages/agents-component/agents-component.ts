@@ -68,6 +68,7 @@ export class AgentsComponent implements OnInit, OnDestroy {
     @ViewChild('RenewBtn', { static: true }) RenewBtn!: TemplateRef<any>;
     @ViewChild('RequestBtn', { static: true }) RequestBtn!: TemplateRef<any>;
     @ViewChild('ManageBtn', { static: true }) ManageBtn!: TemplateRef<any>;
+    @ViewChild('OnlineCell', { static: true }) OnlineCell!: TemplateRef<any>;
     @ViewChild('HostCell', { static: true }) HostCell!: TemplateRef<any>;
     @ViewChild('ServiceCell', { static: true }) ServiceCell!: TemplateRef<any>;
     @ViewChild('DomainCell', { static: true }) DomainCell!: TemplateRef<any>;
@@ -75,6 +76,10 @@ export class AgentsComponent implements OnInit, OnDestroy {
 
     loading = signal(false);
     agents = signal<AgentResponse[]>([]);
+    agentCount = signal(0);
+    domainCount = signal(0);
+    maxAgents = signal<number | null>(null);
+    maxDomains = signal<number | null>(null);
     allTableRows = signal<AgentCertificateRowFlat[]>([]);
     private currentFilter = signal<string | null>(null);
     tableRows = computed(()=>{
@@ -173,7 +178,7 @@ export class AgentsComponent implements OnInit, OnDestroy {
                     },
                 ]},
             { key: 'hostname', label: 'Host / Agent', sortable: true, customCellTemplate: this.HostCell },
-            { key: 'isOnline', label: 'Online', cellTemplateKey: 'check', sortable: true },
+            { key: 'isOnline', label: 'Online', sortable: true, customCellTemplate: this.OnlineCell },
             { key: 'serviceName', label: 'Service', sortable: true, customCellTemplate: this.ServiceCell },
             { key: 'providerName', label: 'CA', sortable: true },
             { key: 'domainName', label: 'Domain / Endpoint', sortable: true, customCellTemplate: this.DomainCell },
@@ -207,9 +212,13 @@ export class AgentsComponent implements OnInit, OnDestroy {
         // Fetch raw objects for card view
         this.agentsService.listAgents(clientId).subscribe({
             next: (data) => {
-                this.agents.set(data);
+                this.agents.set(data.agents ?? []);
+                this.agentCount.set(data.agent_count ?? 0);
+                this.domainCount.set(data.domain_count ?? 0);
+                this.maxAgents.set(data.max_agents ?? null);
+                this.maxDomains.set(data.max_domains ?? null);
                 this.loading.set(false);
-                onLoaded?.(data);
+                onLoaded?.(data.agents ?? []);
             },
             error: (err) => {
                 console.error('Failed to load agents', err);
@@ -560,6 +569,23 @@ export class AgentsComponent implements OnInit, OnDestroy {
                 this.openManageConfigDialog(context.agent, context.domain);
                 break;
         }
+    }
+
+    deleteAgent(row: AgentCertificateRowFlat): void {
+        if (row.isOnline || !row.agentId) return;
+        const name = row.hostname || row.agentId;
+        if (!confirm(`Are you sure you want to delete agent "${name}"?`)) {
+            return;
+        }
+        this.agentsService.deleteAgent(row.agentId).subscribe({
+            next: () => {
+                this.snackBar.open(`Agent ${name} deleted.`, 'OK', { duration: 5000 });
+                this.loadAgents();
+            },
+            error: (err: Error) => {
+                this.snackBar.open(err.message || 'Failed to delete agent.', 'Dismiss', { duration: 8000 });
+            }
+        });
     }
 
     deleteStaleService(row: AgentCertificateRowFlat): void {

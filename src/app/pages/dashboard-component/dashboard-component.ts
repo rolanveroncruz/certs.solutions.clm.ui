@@ -72,7 +72,7 @@ export class DashboardComponent {
 // Lifecycle to load data
     ngOnInit() {
         this.agentsService.listAgents(1).subscribe(data => {
-            this.agents.set(data);
+            this.agents.set(data.agents ?? []);
         });
     }
 

@@ -9,6 +9,11 @@
             <div class="hero-sub">
                 Manage deployed agents, monitor connections, and perform certificate operations.
             </div>
+            <div class="hero-sub">
+                <span>Total Agents: {{ agentCount() }} / {{ maxAgents() ?? '∞' }}</span>
+                &nbsp;&nbsp;|&nbsp;&nbsp;
+                <span>Total Domains: {{ domainCount() }} / {{ maxDomains() ?? '∞' }}</span>
+            </div>
             <a routerLink="/main/agents/download" class="hero-link">Agent Download Page</a>
         </div>
         <div class="hero-actions">
@@ -92,6 +97,16 @@
              class="btn-image" />
         <span class="btn-label">Manage</span>
     </button>
+</ng-template>
+
+<ng-template #OnlineCell let-row>
+    @if (row.isOnline) {
+        <mat-icon class="bool-icon bool-true" (click)="$event.stopPropagation()">check_circle</mat-icon>
+    } @else {
+        <mat-icon class="bool-icon bool-false" style="cursor: pointer"
+                  matTooltip="Agent is offline. Click to delete this agent."
+                  (click)="deleteAgent(row); $event.stopPropagation()">cancel</mat-icon>
+    }
 </ng-template>
 
 <ng-template #HostCell let-row>
