@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Download Windows Agent Installer</h2>
+
+<mat-dialog-content class="dialog-content">
+    <form class="token-form" [formGroup]="form">
+        <mat-form-field appearance="outline">
+            <mat-label>Hostname</mat-label>
+            <input matInput type="text" formControlName="hostname" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Group</mat-label>
+            <input matInput type="text" formControlName="group" />
+        </mat-form-field>
+    </form>
+
+    @if (errorMessage()) {
+        <div class="error-message">{{ errorMessage() }}</div>
+    }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="close()">Cancel</button>
+    <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        [disabled]="form.invalid || loading()"
+        (click)="download()"
+    >
+        @if (loading()) {
+            <mat-spinner diameter="18"></mat-spinner>
+        } @else {
+            Download
+        }
+    </button>
+</mat-dialog-actions>

@@ -1,0 +1,21 @@
+.dialog-content {
+    min-width: 420px;
+    max-width: 100%;
+}
+
+.token-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 8px;
+}
+
+.error-message {
+    margin-top: 12px;
+    color: #b00020;
+    font-size: 0.9rem;
+}
+
+mat-spinner {
+    display: inline-block;
+}
